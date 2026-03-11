@@ -1,0 +1,24 @@
+{
+  "name": "fullstack-assignment",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Fullstack Monorepo with NestJS and Next.js",
+  "scripts": {
+    "dev": "pnpm --parallel -r dev",
+    "start:dev": "pnpm --filter server start:dev",
+    "dev:web": "pnpm --filter web dev",
+    "build": "pnpm -r build",
+    "build:server": "pnpm --filter server build",
+    "build:web": "pnpm --filter web build",
+    "start:server": "pnpm --filter server start",
+    "start:web": "pnpm --filter web start",
+    "lint": "pnpm -r lint",
+    "test": "pnpm -r test"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "typescript": "^5.3.3"
+  }
+}
