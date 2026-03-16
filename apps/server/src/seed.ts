@@ -92,10 +92,20 @@ function ensureDatabaseDirectory(databasePath: string | undefined): void {
   mkdirSync(dirname(databasePath), { recursive: true });
 }
 
-async function main(): Promise<void> {
-  const env = process.env.NODE_ENV ?? "development";
+export function shouldSeedDemoData(nodeEnv: string | undefined): boolean {
+  const env = nodeEnv ?? "development";
+  return ALLOWED_ENVIRONMENTS.has(env);
+}
 
-  if (!ALLOWED_ENVIRONMENTS.has(env)) {
+export async function seedDemoData(dataSource: DataSource): Promise<void> {
+  await seedUsers(dataSource);
+  await seedMeetings(dataSource);
+}
+
+async function main(): Promise<void> {
+  const env = process.env.NODE_ENV;
+
+  if (!shouldSeedDemoData(env)) {
     throw new Error(`Seeding is restricted to development/test environments (current: ${env})`);
   }
 
@@ -106,8 +116,7 @@ async function main(): Promise<void> {
   await dataSource.initialize();
 
   try {
-    await seedUsers(dataSource);
-    await seedMeetings(dataSource);
+    await seedDemoData(dataSource);
   } finally {
     await dataSource.destroy();
   }
@@ -115,7 +124,9 @@ async function main(): Promise<void> {
   console.log("All seed data is up to date.");
 }
 
-main().catch((error) => {
-  console.error("Seed script failed:", error);
-  process.exit(1);
-});
+if (require.main === module) {
+  main().catch((error) => {
+    console.error("Seed script failed:", error);
+    process.exit(1);
+  });
+}

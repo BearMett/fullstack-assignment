@@ -1,6 +1,6 @@
 {
   "extends": "../../tsconfig.base.json",
-  "exclude": ["node_modules", "dist", "../../worktree"],
+  "exclude": ["node_modules", "dist", "../../worktree", "**/*.vitest.ts"],
   "compilerOptions": {
     "rootDir": "../../",
     "module": "commonjs",
