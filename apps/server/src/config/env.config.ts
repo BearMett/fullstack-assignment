@@ -19,7 +19,13 @@ export const getEnvFilePath = () => {
 
 export const validateEnv = (env: Record<string, string | undefined>) => {
   if (!env["JWT_SECRET"]) {
-    throw new Error("JWT_SECRET is required");
+    const worktreeTaskId = env["WORKTREE_TASK_ID"];
+
+    if (worktreeTaskId) {
+      env["JWT_SECRET"] = `worktree-${worktreeTaskId}-secret`;
+    } else {
+      throw new Error("JWT_SECRET is required");
+    }
   }
 
   return env;
