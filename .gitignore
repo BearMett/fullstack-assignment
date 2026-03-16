@@ -30,6 +30,7 @@ lerna-debug.log*
 
 # Environment Variables
 .env
+.env.worktree
 .env.local
 .env.development
 

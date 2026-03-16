@@ -10,7 +10,7 @@ apps/server/
 │   ├── config/              # 환경변수, TypeORM 설정
 │   ├── constants/           # API prefix, DB 경로 상수
 │   ├── entity/              # TypeORM 엔티티
-│   │   └── _placeholder.entity.ts  # TypeORM 초기화용 (구현 후 삭제)
+│   │   └── *.entity.ts             # 실제 TypeORM 엔티티
 │   ├── modules/
 │   │   ├── app.module.ts    # 루트 모듈
 │   │   └── app.middleware.ts # Global Prefix, Pipes, CORS, Swagger 설정
@@ -40,6 +40,11 @@ pnpm start:dev
 # 또는 apps/server 에서 직접
 pnpm dev
 ```
+
+## 테스트
+
+- 기본 서버 테스트 러너는 Jest입니다.
+- 추가 인프라 검증용 Vitest 설정은 `vitest.config.ts`와 `src/**/*.vitest.spec.ts`에 있습니다.
 
 ---
 

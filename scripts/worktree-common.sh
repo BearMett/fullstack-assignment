@@ -83,6 +83,7 @@ find_free_port() {
 write_env() {
   local tid="$1"
   load_slot "$(slot_file "$tid")"
+  local jwt_secret="sangsang-${WORKTREE_TASK_ID}-slot-${WORKTREE_SLOT}-jwt-secret"
   cat >"$(env_file "$tid")" <<EOF
 WORKTREE_TASK_ID=${WORKTREE_TASK_ID}
 WORKTREE_SLOT=${WORKTREE_SLOT}
@@ -90,5 +91,6 @@ WORKTREE_FRONTEND_PORT=${WORKTREE_FRONTEND_PORT}
 WORKTREE_BACKEND_PORT=${WORKTREE_BACKEND_PORT}
 PORT=${WORKTREE_BACKEND_PORT}
 NEXT_PUBLIC_API_URL=http://127.0.0.1:${WORKTREE_BACKEND_PORT}/api
+JWT_SECRET=${jwt_secret}
 EOF
 }

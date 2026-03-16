@@ -69,6 +69,10 @@ pnpm dev
 
 ---
 
+## 테스트
+
+- `pnpm --filter web test` - Vitest + jsdom + React Testing Library
+
 ## 📚 참고 문서
 
 - [Next.js 공식 문서](https://nextjs.org/docs)

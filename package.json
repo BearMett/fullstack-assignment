@@ -13,7 +13,9 @@
     "start:server": "pnpm --filter server start",
     "start:web": "pnpm --filter web start",
     "lint": "pnpm -r lint",
-    "test": "pnpm -r test"
+    "test": "pnpm test:server && pnpm test:web",
+    "test:server": "pnpm --filter server test",
+    "test:web": "pnpm --filter web test"
   },
   "keywords": [],
   "author": "",

@@ -65,8 +65,9 @@ Or `pnpm dev` after sourcing `.env.worktree` to run both.
 | Frontend dev | `pnpm --filter web dev` |
 | Frontend build | `pnpm --filter web build` |
 | Frontend lint | `pnpm --filter web lint` |
+| Frontend test | `pnpm --filter web test` |
 
-No frontend test runner is configured.
+Frontend unit tests use Vitest + jsdom.
 
 ## Source layout
 
