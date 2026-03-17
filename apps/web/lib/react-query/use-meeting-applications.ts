@@ -4,6 +4,7 @@ import {
   ApplicationStatus,
   type ApplicationItemDto,
   type BatchUpdateApplicationStatusDto,
+  type MyApplicationItemDto,
   type UpdateApplicationStatusDto,
 } from "@packages/shared";
 import { useMutation, useQuery, useQueryClient, type UseMutationResult, type UseQueryResult } from "@tanstack/react-query";
@@ -19,8 +20,13 @@ type UpdateApplicationStatusVariables = {
   status: ApplicationStatus;
 };
 
+type ApplyToMeetingVariables = {
+  motivation?: string;
+};
+
 export const applicationQueryKeys = {
   byMeeting: (meetingId: number) => ["meetings", meetingId, "applications"] as const,
+  myApplications: ["my-applications"] as const,
 };
 
 async function refreshMeetingQueries(
@@ -48,13 +54,23 @@ export function useMeetingApplicantsQuery(meetingId: number, enabled = true): Us
   });
 }
 
-export function useApplyToMeetingMutation(meetingId: number): UseMutationResult<ApplicationItemDto, unknown, void> {
+export function useMyApplicationsQuery(): UseQueryResult<MyApplicationItemDto[]> {
+  return useQuery({
+    queryKey: applicationQueryKeys.myApplications,
+    queryFn: () => applicationsApiClient.listMyApplications(),
+  });
+}
+
+export function useApplyToMeetingMutation(meetingId: number): UseMutationResult<ApplicationItemDto, unknown, ApplyToMeetingVariables | void> {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: () => applicationsApiClient.apply(meetingId),
+    mutationFn: (variables) => applicationsApiClient.apply(meetingId, (variables as ApplyToMeetingVariables)?.motivation),
     onSuccess: async () => {
-      await refreshMeetingQueries(queryClient, meetingId);
+      await Promise.all([
+        refreshMeetingQueries(queryClient, meetingId),
+        queryClient.invalidateQueries({ queryKey: applicationQueryKeys.myApplications }),
+      ]);
     },
   });
 }
@@ -67,7 +83,10 @@ export function useCancelMeetingApplicationMutation(
   return useMutation({
     mutationFn: (applicationId) => applicationsApiClient.cancel(meetingId, applicationId),
     onSuccess: async () => {
-      await refreshMeetingQueries(queryClient, meetingId);
+      await Promise.all([
+        refreshMeetingQueries(queryClient, meetingId),
+        queryClient.invalidateQueries({ queryKey: applicationQueryKeys.myApplications }),
+      ]);
     },
   });
 }

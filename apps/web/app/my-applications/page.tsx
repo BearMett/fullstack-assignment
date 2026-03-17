@@ -1,12 +1,12 @@
-import { MeetingsBrowser } from "@/components/meetings-browser";
+import { MyApplicationsScreen } from "@/components/my-applications-screen";
 import { SiteNavbar } from "@/components/site-navbar";
 import { ProtectedRoute } from "@/components/route-guard";
 
-export default function MeetingsPage() {
+export default function MyApplicationsPage() {
   return (
     <ProtectedRoute>
       <SiteNavbar />
-      <MeetingsBrowser />
+      <MyApplicationsScreen />
     </ProtectedRoute>
   );
 }

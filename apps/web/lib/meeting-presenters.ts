@@ -8,6 +8,13 @@ const meetingCategoryLabels: Record<MeetingCategory, string> = {
   [MeetingCategory.ENGLISH]: "영어",
 };
 
+const meetingCategoryIcons: Record<MeetingCategory, string> = {
+  [MeetingCategory.READING]: "📖",
+  [MeetingCategory.EXERCISE]: "🏃",
+  [MeetingCategory.WRITING]: "✏️",
+  [MeetingCategory.ENGLISH]: "🌐",
+};
+
 const announcementDateFormatter = new Intl.DateTimeFormat("ko-KR", {
   year: "numeric",
   month: "long",
@@ -24,6 +31,22 @@ export function formatAnnouncementDate(value: string): string {
   return announcementDateFormatter.format(date);
 }
 
+export function getRelativeDateLabel(dateStr: string): string {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const target = new Date(`${dateStr}T00:00:00`);
+  target.setHours(0, 0, 0, 0);
+
+  const diffMs = target.getTime() - today.getTime();
+  const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
+
+  if (diffDays === 0) return "오늘";
+  if (diffDays === 1) return "내일";
+  if (diffDays === -1) return "어제";
+  if (diffDays > 1) return `D-${diffDays}`;
+  return `${Math.abs(diffDays)}일 전`;
+}
+
 export function getRecruitingStateCopy(isRecruiting: boolean): {
   label: string;
   description: string;
@@ -32,14 +55,14 @@ export function getRecruitingStateCopy(isRecruiting: boolean): {
   if (isRecruiting) {
     return {
       label: "모집 중",
-      description: "발표일 전까지 신청을 받을 수 있는 상태입니다.",
+      description: "마감일 전까지 신청을 받을 수 있는 상태입니다.",
       tone: "is-open",
     };
   }
 
   return {
     label: "모집 마감",
-    description: "발표일이 도래해 더 이상 신규 신청을 받지 않습니다.",
+    description: "마감일이 지나 더 이상 신규 신청을 받지 않습니다.",
     tone: "is-closed",
   };
 }
@@ -70,4 +93,44 @@ export function getApplicationStatusCopy(status: ApplicationStatus): {
 
 export function getMeetingCategoryLabel(category: MeetingCategory): string {
   return meetingCategoryLabels[category] ?? category;
+}
+
+export function getMeetingCategoryIcon(category: MeetingCategory): string {
+  return meetingCategoryIcons[category] ?? "📋";
+}
+
+type MeetingBadge = {
+  label: string;
+  tone: string;
+};
+
+export function getMeetingStatusBadges(meeting: {
+  category: MeetingCategory;
+  isRecruiting: boolean;
+  allowReapply: boolean;
+  announcementDate: string;
+}, options?: { isAdmin?: boolean }): MeetingBadge[] {
+  const badges: MeetingBadge[] = [];
+
+  badges.push({
+    label: `${getMeetingCategoryIcon(meeting.category)} ${getMeetingCategoryLabel(meeting.category)}`,
+    tone: "category",
+  });
+
+  if (meeting.isRecruiting) {
+    badges.push({ label: "신청 가능", tone: "is-open" });
+  }
+
+  const today = new Date().toISOString().slice(0, 10);
+  const isAnnouncementPast = meeting.announcementDate <= today;
+
+  if (isAnnouncementPast) {
+    badges.push({ label: "발표 완료", tone: "is-closed" });
+  }
+
+  if (meeting.allowReapply && options?.isAdmin) {
+    badges.push({ label: "재신청 가능", tone: "reapply" });
+  }
+
+  return badges;
 }

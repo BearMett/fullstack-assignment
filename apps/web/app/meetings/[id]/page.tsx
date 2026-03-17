@@ -1,4 +1,5 @@
 import { MeetingDetailView } from "@/components/meeting-detail/meeting-detail-view";
+import { SiteNavbar } from "@/components/site-navbar";
 import { ProtectedRoute } from "@/components/route-guard";
 
 type MeetingDetailPageProps = {
@@ -13,6 +14,7 @@ export default async function MeetingDetailPage({ params }: MeetingDetailPagePro
 
   return (
     <ProtectedRoute>
+      <SiteNavbar />
       <MeetingDetailView meetingId={meetingId} />
     </ProtectedRoute>
   );

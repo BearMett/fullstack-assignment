@@ -1,277 +1,279 @@
 "use client";
 
-import { type SignInDto, type SignUpDto } from "@packages/shared";
-import Link from "next/link";
+import { type UserListItemDto } from "@packages/shared";
 import { useRouter } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import { extractApiErrorMessage } from "@/lib/api-client";
-import { useLoginMutation, useRegisterMutation } from "@/lib/react-query/use-auth";
+import { useSimpleLoginMutation, useSimpleRegisterMutation, useUsersQuery } from "@/lib/react-query/use-auth";
 import { GuestOnly } from "@/components/route-guard";
-
-type AuthMode = "login" | "register";
 
 type FormState = {
   name: string;
-  email: string;
-  password: string;
+  phone: string;
 };
 
-type SubmitEvent = {
-  preventDefault: () => void;
-};
+function UserAvatar({ name }: { name: string }) {
+  return (
+    <span
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
+        width: "2.5rem",
+        height: "2.5rem",
+        borderRadius: "50%",
+        background: "var(--accent-soft)",
+        color: "var(--accent-strong)",
+        fontWeight: 700,
+        fontSize: "0.95rem",
+        flexShrink: 0,
+      }}
+    >
+      {name.charAt(0)}
+    </span>
+  );
+}
 
-const demoAccounts = [
-  {
-    label: "관리자 계정",
-    email: "admin@sangsang.com",
-    password: "Password1!",
-  },
-  {
-    label: "회원 계정",
-    email: "user@example.com",
-    password: "Password1!",
-  },
-];
+function UserListItem({
+  user,
+  disabled,
+  onClick,
+}: {
+  user: UserListItemDto;
+  disabled: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      className="sample-button"
+      disabled={disabled}
+      onClick={onClick}
+      type="button"
+      style={{ padding: "0.75rem 1rem" }}
+    >
+      <span style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
+        <UserAvatar name={user.name} />
+        <span>
+          <span className="sample-label">{user.name}</span>
+          <span className="sample-value">{user.phone}</span>
+        </span>
+      </span>
+      <span className="sample-value" style={{ fontSize: "1.2rem" }}>›</span>
+    </button>
+  );
+}
 
-const screenCopy = {
-  login: {
-    eyebrow: "Session",
-    title: "오늘의 모임 공지를 확인하려면 로그인하세요",
-    description:
-      "관리자와 회원 데모 계정으로 바로 흐름을 검증할 수 있고, 로그인에 성공하면 보호된 모임 화면으로 곧장 이동합니다.",
-    submitLabel: "로그인",
-    pendingLabel: "로그인 중...",
-    helperTitle: "빠른 확인용 데모 계정",
-    helperDescription: "버튼 한 번으로 입력값을 채워 인증 흐름을 바로 점검할 수 있습니다.",
-    alternateQuestion: "아직 계정이 없나요?",
-    alternateHref: "/register",
-    alternateLabel: "회원가입으로 이동",
-    errorFallback: "로그인에 실패했습니다",
-    highlights: [
-      "백엔드가 반환한 인증 오류 문구를 그대로 노출합니다.",
-      "성공 시 세션을 저장하고 즉시 보호된 화면으로 이동합니다.",
-      "다음 방문에서도 로그인 상태를 이어갈 수 있습니다.",
-    ],
-  },
-  register: {
-    eyebrow: "Join",
-    title: "새 계정으로 상상단 모임에 바로 합류하세요",
-    description:
-      "이름, 이메일, 비밀번호만 입력하면 회원가입 직후 세션이 저장되고 보호된 모임 화면으로 연결됩니다.",
-    submitLabel: "회원가입",
-    pendingLabel: "가입 처리 중...",
-    helperTitle: "가입 후 바로 가능한 일",
-    helperDescription: "첫 사용자 흐름을 검증하기 위한 최소한의 보호된 공간까지 이어집니다.",
-    alternateQuestion: "이미 계정이 있나요?",
-    alternateHref: "/login",
-    alternateLabel: "로그인으로 이동",
-    errorFallback: "회원가입에 실패했습니다",
-    highlights: [
-      "중복 이메일 오류를 서버 응답 그대로 안내합니다.",
-      "회원가입 직후 별도 재로그인 없이 세션을 이어갑니다.",
-      "이후 모임 탐색 화면이 붙을 자리만 가볍게 확보합니다.",
-    ],
-  },
-} as const;
-
-export function AuthScreen({ mode }: { mode: AuthMode }) {
+export function AuthScreen() {
   const router = useRouter();
-  const [formState, setFormState] = useState<FormState>({
-    name: "",
-    email: "",
-    password: "",
-  });
-  const copy = screenCopy[mode];
-  const registerMutation = useRegisterMutation();
-  const loginMutation = useLoginMutation();
-  const mutation = mode === "register" ? registerMutation : loginMutation;
+  const usersQuery = useUsersQuery();
+  const simpleLoginMutation = useSimpleLoginMutation();
+  const simpleRegisterMutation = useSimpleRegisterMutation();
+  const [showRegister, setShowRegister] = useState(false);
+  const [formState, setFormState] = useState<FormState>({ name: "", phone: "" });
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  const errorMessage = useMemo(() => {
-    if (!mutation.error) {
-      return null;
-    }
+  const users = usersQuery.data ?? [];
+  const isBusy = simpleLoginMutation.isPending || simpleRegisterMutation.isPending;
 
-    return extractApiErrorMessage(mutation.error, copy.errorFallback);
-  }, [copy.errorFallback, mutation.error]);
-
-  const handleChange = <Field extends keyof FormState>(field: Field, value: FormState[Field]) => {
-    setFormState((current) => ({
-      ...current,
-      [field]: value,
-    }));
+  const handleUserClick = (userId: number) => {
+    setErrorMessage(null);
+    simpleLoginMutation.mutate(userId, {
+      onSuccess: () => {
+        router.replace("/meetings");
+      },
+      onError: (error) => {
+        setErrorMessage(extractApiErrorMessage(error, "로그인에 실패했습니다"));
+      },
+    });
   };
 
-  const handleDemoFill = (email: string, password: string) => {
-    setFormState((current) => ({
-      ...current,
-      email,
-      password,
-    }));
-  };
-
-  const handleSubmit = (event: SubmitEvent) => {
+  const handleRegister = (event: { preventDefault: () => void }) => {
     event.preventDefault();
+    setErrorMessage(null);
 
-    if (mode === "register") {
-      const payload: SignUpDto = {
-        name: formState.name.trim(),
-        email: formState.email.trim(),
-        password: formState.password,
-      };
-
-      registerMutation.mutate(payload, {
+    simpleRegisterMutation.mutate(
+      { name: formState.name.trim(), phone: formState.phone.trim() },
+      {
         onSuccess: () => {
           router.replace("/meetings");
         },
-      });
-      return;
-    }
+        onError: (error) => {
+          setErrorMessage(extractApiErrorMessage(error, "사용자 추가에 실패했습니다"));
+        },
+      }
+    );
+  };
 
-    const payload: SignInDto = {
-      email: formState.email.trim(),
-      password: formState.password,
-    };
-
-    loginMutation.mutate(payload, {
+  const handleAdminLogin = () => {
+    // Find admin - it won't be in the user list (filtered to USER role)
+    // Use simple-login with userId 1 (admin is always first seeded user)
+    // Actually we need a different approach - let's login via the users list endpoint
+    // The admin is not shown. We'll use a direct API call.
+    setErrorMessage(null);
+    simpleLoginMutation.mutate(1, {
       onSuccess: () => {
-        router.replace("/meetings");
+        router.replace("/admin/meetings");
+      },
+      onError: (error) => {
+        setErrorMessage(extractApiErrorMessage(error, "관리자 로그인에 실패했습니다"));
       },
     });
   };
 
   return (
     <GuestOnly>
-      <main className="page-shell">
-        <div className="auth-layout">
-          <section className="hero-card stack-lg">
-            <span className="section-kicker">{copy.eyebrow}</span>
-            <div className="stack-md">
-              <h1 className="section-title">{copy.title}</h1>
-              <p className="section-description">{copy.description}</p>
-            </div>
+      <main
+        style={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          justifyContent: "center",
+          minHeight: "100vh",
+          padding: "2rem 1rem",
+        }}
+      >
+        <div style={{ textAlign: "center", marginBottom: "1.5rem" }}>
+          <div
+            style={{
+              display: "inline-flex",
+              alignItems: "center",
+              justifyContent: "center",
+              width: "3.5rem",
+              height: "3.5rem",
+              borderRadius: "50%",
+              background: "var(--accent-soft)",
+              marginBottom: "1rem",
+            }}
+          >
+            <span style={{ fontSize: "1.5rem", color: "var(--accent-strong)" }}>♡</span>
+          </div>
+          <h1
+            style={{
+              fontFamily: "var(--font-display), serif",
+              fontSize: "1.75rem",
+              fontWeight: 700,
+              letterSpacing: "-0.04em",
+            }}
+          >
+            모임터
+          </h1>
+          <p className="meta-copy" style={{ marginTop: "0.35rem" }}>
+            단톡방 모임 신청 및 선정 관리
+          </p>
+        </div>
 
-            <div className="feature-list">
-              {copy.highlights.map((highlight, index) => (
-                <div className="feature-item" key={highlight}>
-                  <span className="feature-index">0{index + 1}</span>
-                  <div className="feature-copy">
-                    <strong>{highlight}</strong>
-                  </div>
-                </div>
-              ))}
-            </div>
+        <section className="auth-card stack-lg" style={{ width: "min(100%, 28rem)", padding: "1.5rem" }}>
+          {errorMessage ? <p className="status-banner">{errorMessage}</p> : null}
 
-            <div className="stack-md">
-              <div className="stack-sm">
-                <p className="eyebrow-copy">{copy.helperTitle}</p>
-                <p className="sample-meta">{copy.helperDescription}</p>
+          {!showRegister ? (
+            <>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                <span style={{ fontSize: "0.85rem", color: "var(--ink-subtle)" }}>👤</span>
+                <span style={{ fontSize: "0.95rem", fontWeight: 600 }}>사용자 선택</span>
               </div>
 
-              {mode === "login" ? (
-                <div className="sample-grid">
-                  {demoAccounts.map((account) => (
-                    <button
-                      className="sample-button"
-                      key={account.email}
-                      onClick={() => handleDemoFill(account.email, account.password)}
-                      type="button"
-                    >
-                      <span>
-                        <span className="sample-label">{account.label}</span>
-                        <span className="sample-value">{account.email}</span>
-                      </span>
-                      <span className="sample-value">{account.password}</span>
-                    </button>
+              {usersQuery.isLoading ? (
+                <div className="stack-sm">
+                  {Array.from({ length: 3 }).map((_, i) => (
+                    <div className="loading-block" key={i} style={{ height: "3.5rem", borderRadius: "1rem" }} />
                   ))}
                 </div>
               ) : (
-                <div className="credential-list">
-                  <div className="feature-item">
-                    <span className="feature-index">1</span>
-                    <div className="feature-copy">
-                      <strong>가입이 끝나면 즉시 보호된 `/meetings` 화면으로 이동합니다.</strong>
-                    </div>
-                  </div>
-                  <div className="feature-item">
-                    <span className="feature-index">2</span>
-                    <div className="feature-copy">
-                      <strong>로그아웃 전까지 세션이 유지되어 새로고침에도 상태가 이어집니다.</strong>
-                    </div>
-                  </div>
+                <div className="stack-sm">
+                  {users.map((user) => (
+                    <UserListItem
+                      key={user.id}
+                      user={user}
+                      disabled={isBusy}
+                      onClick={() => handleUserClick(user.id)}
+                    />
+                  ))}
                 </div>
               )}
-            </div>
-          </section>
 
-          <section className="auth-card stack-lg">
-            <div className="auth-header stack-sm">
-              <span className="section-kicker">{copy.submitLabel}</span>
-              <div className="stack-sm">
-                <h2 className="section-title">{copy.submitLabel} 준비가 끝났습니다</h2>
-                <p className="section-description">필수 정보만 입력하면 바로 다음 단계로 이어집니다.</p>
+              <button
+                className="ghost-button"
+                onClick={() => setShowRegister(true)}
+                type="button"
+                style={{ width: "100%" }}
+              >
+                + 새 사용자 추가
+              </button>
+            </>
+          ) : (
+            <>
+              <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
+                <span style={{ fontSize: "0.95rem", fontWeight: 600 }}>새 사용자 추가</span>
               </div>
-            </div>
 
-            {errorMessage ? <p className="status-banner">{errorMessage}</p> : null}
-
-            <form className="auth-form" onSubmit={handleSubmit}>
-              {mode === "register" ? (
+              <form className="auth-form" onSubmit={handleRegister}>
                 <label className="auth-field">
                   <span className="auth-label">이름</span>
                   <input
                     autoComplete="name"
                     className="auth-input"
-                    onChange={(event) => handleChange("name", event.target.value)}
+                    onChange={(e) => setFormState((s) => ({ ...s, name: e.target.value }))}
                     placeholder="이름을 입력하세요"
                     required
                     type="text"
                     value={formState.name}
                   />
                 </label>
-              ) : null}
 
-              <label className="auth-field">
-                <span className="auth-label">이메일</span>
-                <input
-                  autoComplete="email"
-                  className="auth-input"
-                  onChange={(event) => handleChange("email", event.target.value)}
-                  placeholder="name@example.com"
-                  required
-                  type="email"
-                  value={formState.email}
-                />
-              </label>
+                <label className="auth-field">
+                  <span className="auth-label">전화번호</span>
+                  <input
+                    autoComplete="tel"
+                    className="auth-input"
+                    onChange={(e) => setFormState((s) => ({ ...s, phone: e.target.value }))}
+                    placeholder="010-0000-0000"
+                    required
+                    type="tel"
+                    value={formState.phone}
+                  />
+                </label>
 
-              <label className="auth-field">
-                <span className="auth-label">비밀번호</span>
-                <input
-                  autoComplete={mode === "login" ? "current-password" : "new-password"}
-                  className="auth-input"
-                  minLength={8}
-                  onChange={(event) => handleChange("password", event.target.value)}
-                  placeholder="비밀번호를 입력하세요"
-                  required
-                  type="password"
-                  value={formState.password}
-                />
-              </label>
+                <div style={{ display: "flex", gap: "0.75rem" }}>
+                  <button
+                    className="ghost-button"
+                    onClick={() => setShowRegister(false)}
+                    type="button"
+                    style={{ flex: 1 }}
+                  >
+                    돌아가기
+                  </button>
+                  <button
+                    className="primary-button"
+                    disabled={isBusy}
+                    type="submit"
+                    style={{ flex: 1 }}
+                  >
+                    {simpleRegisterMutation.isPending ? "추가 중..." : "추가하기"}
+                  </button>
+                </div>
+              </form>
+            </>
+          )}
+        </section>
 
-              <button className="primary-button" disabled={mutation.isPending} type="submit">
-                {mutation.isPending ? copy.pendingLabel : copy.submitLabel}
-              </button>
-            </form>
-
-            <div className="divider-row">또는</div>
-
-            <div className="auth-footer stack-sm">
-              <p className="meta-copy">{copy.alternateQuestion}</p>
-              <Link className="ghost-link" href={copy.alternateHref}>
-                {copy.alternateLabel}
-              </Link>
-            </div>
-          </section>
-        </div>
+        <button
+          onClick={handleAdminLogin}
+          disabled={isBusy}
+          type="button"
+          style={{
+            marginTop: "1.5rem",
+            background: "none",
+            border: "none",
+            cursor: "pointer",
+            color: "var(--ink-subtle)",
+            fontSize: "0.88rem",
+            display: "flex",
+            alignItems: "center",
+            gap: "0.4rem",
+          }}
+        >
+          ⚙ 관리자 페이지로 이동
+        </button>
       </main>
     </GuestOnly>
   );

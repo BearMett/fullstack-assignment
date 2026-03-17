@@ -18,7 +18,7 @@ export function HomeRedirect() {
   }, [hasHydrated, router, session]);
 
   return (
-    <main className="page-shell">
+    <main className="page-shell" data-testid="page-shell">
       <div className="status-wrap">
         <section className="status-card stack-lg">
           <span className="section-kicker">Entry</span>
