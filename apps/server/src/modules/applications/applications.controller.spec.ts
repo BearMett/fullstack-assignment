@@ -276,13 +276,18 @@ describe("ApplicationsController", () => {
     return loginResponse.body.token;
   }
 
-  async function createMeeting(maxParticipants: number, announcementOffsetDays: number): Promise<Meeting> {
+  async function createMeeting(maxParticipants: number, deadlineOffsetDays: number): Promise<Meeting> {
+    const deadlineDate = new Date();
+    deadlineDate.setDate(deadlineDate.getDate() + deadlineOffsetDays);
     const announcementDate = new Date();
-    announcementDate.setDate(announcementDate.getDate() + announcementOffsetDays);
-    const year = announcementDate.getFullYear();
-    const month = String(announcementDate.getMonth() + 1).padStart(2, "0");
-    const day = String(announcementDate.getDate()).padStart(2, "0");
-    const dateValue = `${year}-${month}-${day}`;
+    announcementDate.setDate(announcementDate.getDate() + deadlineOffsetDays + 1);
+
+    const formatDate = (d: Date) => {
+      const y = d.getFullYear();
+      const m = String(d.getMonth() + 1).padStart(2, "0");
+      const day = String(d.getDate()).padStart(2, "0");
+      return `${y}-${m}-${day}`;
+    };
 
     return meetingRepository.save(
       meetingRepository.create({
@@ -290,7 +295,9 @@ describe("ApplicationsController", () => {
         category: MeetingCategory.READING,
         description: "모임 설명",
         maxParticipants,
-        announcementDate: dateValue,
+        deadlineDate: formatDate(deadlineDate),
+        announcementDate: formatDate(announcementDate),
+        allowReapply: false,
       })
     );
   }

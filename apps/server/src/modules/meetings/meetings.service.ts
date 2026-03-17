@@ -34,8 +34,10 @@ export class MeetingsService {
           category: meeting.category,
           description: meeting.description,
           maxParticipants: meeting.maxParticipants,
+          deadlineDate: meeting.deadlineDate,
           announcementDate: meeting.announcementDate,
-          isRecruiting: this.isRecruiting(meeting.announcementDate),
+          allowReapply: meeting.allowReapply,
+          isRecruiting: this.isRecruiting(meeting.deadlineDate),
           applicantCount,
         } satisfies MeetingListItemDto;
       })
@@ -55,7 +57,7 @@ export class MeetingsService {
       throw new NotFoundException("모임을 찾을 수 없습니다");
     }
 
-    const isRecruiting = this.isRecruiting(meeting.announcementDate);
+    const isRecruiting = this.isRecruiting(meeting.deadlineDate);
     const applicantCount = await this.applicationRepository.count({ where: { meetingId: meeting.id } });
 
     if (role === UserRole.ADMIN) {
@@ -87,10 +89,10 @@ export class MeetingsService {
     };
   }
 
-  private isRecruiting(announcementDate: string): boolean {
+  private isRecruiting(deadlineDate: string): boolean {
     const today = new Date().toISOString().slice(0, 10);
 
-    return announcementDate > today;
+    return deadlineDate >= today;
   }
 
   private toMeetingType(meeting: Meeting): MeetingType {
@@ -100,14 +102,21 @@ export class MeetingsService {
       category: meeting.category,
       description: meeting.description,
       maxParticipants: meeting.maxParticipants,
+      deadlineDate: meeting.deadlineDate,
       announcementDate: meeting.announcementDate,
+      allowReapply: meeting.allowReapply,
       createdAt: meeting.createdAt.toISOString(),
       updatedAt: meeting.updatedAt.toISOString(),
     };
   }
 
+  private isAnnouncementPast(announcementDate: string): boolean {
+    const today = new Date().toISOString().slice(0, 10);
+    return announcementDate <= today;
+  }
+
   private toApplicationResult(application: Application, announcementDate: string): ApplicationResultType {
-    const isResultVisible = !this.isRecruiting(announcementDate);
+    const isResultVisible = this.isAnnouncementPast(announcementDate);
     const displayStatus = isResultVisible ? application.status : ApplicationStatus.PENDING;
 
     return {

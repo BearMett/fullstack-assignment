@@ -18,6 +18,9 @@ export class Application {
   @Column({ type: "simple-enum", enum: ApplicationStatus, default: ApplicationStatus.PENDING })
   status: ApplicationStatus;
 
+  @Column({ type: "text", nullable: true })
+  motivation: string;
+
   @CreateDateColumn({ type: "datetime" })
   createdAt: Date;
 

@@ -23,9 +23,27 @@ export interface ApplicationItemDto {
   meetingId: number;
   status: ApplicationStatus;
   displayStatus: ApplicationStatus;
+  motivation?: string;
   userName?: string;
   userEmail?: string;
+  userPhone?: string;
   resultMessage?: string;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface ApplyToMeetingDto {
+  motivation?: string;
+}
+
+export interface MyApplicationItemDto {
+  id: number;
+  meetingId: number;
+  meetingTitle: string;
+  meetingCategory: string;
+  announcementDate: string;
+  status: ApplicationStatus;
+  displayStatus: ApplicationStatus;
+  resultMessage?: string;
+  createdAt: string;
 }

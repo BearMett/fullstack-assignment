@@ -11,14 +11,31 @@ export interface SignInDto {
   password: string;
 }
 
+export interface SimpleLoginDto {
+  userId: number;
+}
+
+export interface SimpleRegisterDto {
+  name: string;
+  phone: string;
+}
+
 export interface AuthUserDto {
   id: number;
   email: string;
   name: string;
+  phone?: string;
   role: UserRole;
 }
 
 export interface AuthTokenDto {
   token: string;
   user: AuthUserDto;
+}
+
+export interface UserListItemDto {
+  id: number;
+  name: string;
+  phone: string;
+  role: UserRole;
 }

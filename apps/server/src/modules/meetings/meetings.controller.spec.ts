@@ -90,7 +90,9 @@ describe("MeetingsController (core)", () => {
       category: MeetingCategory.READING,
       description: "관리자만 생성",
       maxParticipants: 5,
+      deadlineDate: dateOffset(2),
       announcementDate: dateOffset(3),
+      allowReapply: false,
     };
 
     const unauthorizedResponse = await request(app.getHttpServer()).post("/api/meetings").send(payload);
@@ -107,6 +109,7 @@ describe("MeetingsController (core)", () => {
 
   it("creates meeting for admin with valid payload", async () => {
     const { token: adminToken } = await createUserSession(UserRole.ADMIN);
+    const deadlineDate = dateOffset(2);
     const announcementDate = dateOffset(3);
 
     const response = await request(app.getHttpServer())
@@ -117,7 +120,9 @@ describe("MeetingsController (core)", () => {
         category: MeetingCategory.READING,
         description: "정상 생성",
         maxParticipants: 6,
+        deadlineDate,
         announcementDate,
+        allowReapply: false,
       });
 
     expect(response.status).toBe(201);
@@ -127,7 +132,9 @@ describe("MeetingsController (core)", () => {
         category: MeetingCategory.READING,
         description: "정상 생성",
         maxParticipants: 6,
+        deadlineDate,
         announcementDate,
+        allowReapply: false,
       })
     );
   });
@@ -143,7 +150,9 @@ describe("MeetingsController (core)", () => {
         category: "취미",
         description: "검증 실패",
         maxParticipants: 5,
+        deadlineDate: dateOffset(2),
         announcementDate: dateOffset(3),
+        allowReapply: false,
       });
 
     expect(invalidCategoryResponse.status).toBe(400);
@@ -156,7 +165,9 @@ describe("MeetingsController (core)", () => {
         category: MeetingCategory.EXERCISE,
         description: "검증 실패",
         maxParticipants: 3,
+        deadlineDate: dateOffset(-1),
         announcementDate: dateOffset(-1),
+        allowReapply: false,
       });
 
     expect(invalidAnnouncementDateResponse.status).toBe(400);
@@ -169,7 +180,9 @@ describe("MeetingsController (core)", () => {
         category: MeetingCategory.ENGLISH,
         description: "검증 실패",
         maxParticipants: 0,
+        deadlineDate: dateOffset(2),
         announcementDate: dateOffset(3),
+        allowReapply: false,
       });
 
     expect(invalidMaxParticipantsResponse.status).toBe(400);
@@ -184,7 +197,9 @@ describe("MeetingsController (core)", () => {
       category: MeetingCategory.READING,
       description: "모집중",
       maxParticipants: 2,
-      announcementDate: dateOffset(2),
+      deadlineDate: dateOffset(2),
+      announcementDate: dateOffset(3),
+      allowReapply: false,
     });
 
     const closedMeeting = await meetingRepository.save({
@@ -192,7 +207,9 @@ describe("MeetingsController (core)", () => {
       category: MeetingCategory.WRITING,
       description: "마감",
       maxParticipants: 2,
+      deadlineDate: dateOffset(-3),
       announcementDate: dateOffset(-2),
+      allowReapply: false,
     });
 
     await applicationRepository.save({
@@ -218,6 +235,14 @@ describe("MeetingsController (core)", () => {
         applicantCount: 1,
       })
     );
+    userListResponse.body.forEach((meetingRow: Record<string, unknown>) => {
+      expect(meetingRow).not.toHaveProperty("adminApplicationSummary");
+    });
+    expect(
+      userListResponse.body.some((meetingRow: Record<string, unknown>) =>
+        Object.prototype.hasOwnProperty.call(meetingRow, "adminApplicationSummary")
+      )
+    ).toBe(false);
 
     const adminListResponse = await request(app.getHttpServer())
       .get("/api/meetings")
@@ -240,7 +265,9 @@ describe("MeetingsController (core)", () => {
       category: MeetingCategory.EXERCISE,
       description: "인증 필요",
       maxParticipants: 5,
+      deadlineDate: dateOffset(1),
       announcementDate: dateOffset(2),
+      allowReapply: false,
     });
 
     const listResponse = await request(app.getHttpServer()).get("/api/meetings");
@@ -258,7 +285,9 @@ describe("MeetingsController (core)", () => {
       category: MeetingCategory.ENGLISH,
       description: "결과 마스킹",
       maxParticipants: 7,
+      deadlineDate: dateOffset(2),
       announcementDate: dateOffset(3),
+      allowReapply: false,
     });
 
     const application = await applicationRepository.save({
@@ -296,7 +325,9 @@ describe("MeetingsController (core)", () => {
       category: MeetingCategory.READING,
       description: "결과 공개",
       maxParticipants: 5,
+      deadlineDate: dateOffset(-1),
       announcementDate: dateOffset(0),
+      allowReapply: false,
     });
 
     const application = await applicationRepository.save({
@@ -331,7 +362,9 @@ describe("MeetingsController (core)", () => {
       category: MeetingCategory.EXERCISE,
       description: "미신청 상태",
       maxParticipants: 8,
+      deadlineDate: dateOffset(1),
       announcementDate: dateOffset(2),
+      allowReapply: false,
     });
 
     const response = await request(app.getHttpServer())
@@ -354,7 +387,9 @@ describe("MeetingsController (core)", () => {
       category: MeetingCategory.WRITING,
       description: "관리자 집계",
       maxParticipants: 2,
+      deadlineDate: dateOffset(2),
       announcementDate: dateOffset(3),
+      allowReapply: false,
     });
 
     await applicationRepository.save([

@@ -9,8 +9,10 @@ export interface ApplicationType {
   userId: number;
   meetingId: number;
   status: ApplicationStatus;
+  motivation?: string;
   userName?: string;
   userEmail?: string;
+  userPhone?: string;
   createdAt: string;
   updatedAt: string;
 }

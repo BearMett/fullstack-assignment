@@ -7,14 +7,17 @@ export class User {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ unique: true })
+  @Column({ unique: true, nullable: true })
   email: string;
 
-  @Column()
+  @Column({ nullable: true })
   password: string;
 
   @Column()
   name: string;
+
+  @Column({ nullable: true })
+  phone: string;
 
   @Column({ type: "simple-enum", enum: UserRole, default: UserRole.USER })
   role: UserRole;

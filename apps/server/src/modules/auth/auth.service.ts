@@ -1,5 +1,5 @@
-import { AuthTokenDto, SignInDto, SignUpDto, UserRole } from "@packages/shared";
-import { ConflictException, Injectable, UnauthorizedException } from "@nestjs/common";
+import { AuthTokenDto, SignInDto, SignUpDto, UserListItemDto, UserRole } from "@packages/shared";
+import { ConflictException, Injectable, NotFoundException, UnauthorizedException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { User } from "../../entity";
@@ -35,11 +35,46 @@ export class AuthService {
   async login(payload: SignInDto): Promise<AuthTokenDto> {
     const user = await this.userRepository.findOne({ where: { email: payload.email } });
 
-    if (!user || !verifyPassword(payload.password, user.password)) {
+    if (!user || !user.password || !verifyPassword(payload.password, user.password)) {
       throw new UnauthorizedException(INVALID_CREDENTIALS_MESSAGE);
     }
 
     return this.toAuthResponse(user);
+  }
+
+  async listUsers(): Promise<UserListItemDto[]> {
+    const users = await this.userRepository.find({
+      where: { role: UserRole.USER },
+      order: { id: "ASC" },
+    });
+
+    return users.map((user) => ({
+      id: user.id,
+      name: user.name,
+      phone: user.phone ?? "",
+      role: user.role,
+    }));
+  }
+
+  async simpleLogin(userId: number): Promise<AuthTokenDto> {
+    const user = await this.userRepository.findOne({ where: { id: userId } });
+
+    if (!user) {
+      throw new NotFoundException("사용자를 찾을 수 없습니다");
+    }
+
+    return this.toAuthResponse(user);
+  }
+
+  async simpleRegister(name: string, phone: string): Promise<AuthTokenDto> {
+    const user = this.userRepository.create({
+      name,
+      phone,
+      role: UserRole.USER,
+    });
+
+    const savedUser = await this.userRepository.save(user);
+    return this.toAuthResponse(savedUser);
   }
 
   private toAuthResponse(user: User): AuthTokenDto {
@@ -47,8 +82,9 @@ export class AuthService {
       token: this.jwtTokenService.sign({ userId: user.id, role: user.role }),
       user: {
         id: user.id,
-        email: user.email,
+        email: user.email ?? "",
         name: user.name,
+        phone: user.phone,
         role: user.role,
       },
     };

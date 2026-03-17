@@ -13,7 +13,9 @@ export interface MeetingType {
   category: MeetingCategory;
   description: string;
   maxParticipants: number;
+  deadlineDate: string;
   announcementDate: string;
+  allowReapply: boolean;
   createdAt: string;
   updatedAt: string;
 }

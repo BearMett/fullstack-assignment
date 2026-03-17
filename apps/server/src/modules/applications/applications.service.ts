@@ -1,4 +1,4 @@
-import { ApplicationItemDto, ApplicationStatus } from "@packages/shared";
+import { ApplicationItemDto, ApplicationStatus, MyApplicationItemDto } from "@packages/shared";
 import { BadRequestException, ConflictException, ForbiddenException, Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { EntityManager, In, Repository } from "typeorm";
@@ -26,16 +26,27 @@ export class ApplicationsService {
     @InjectRepository(Meeting) private readonly meetingRepository: Repository<Meeting>
   ) {}
 
-  async apply(meetingId: number, userId: number): Promise<ApplicationItemDto> {
+  async apply(meetingId: number, userId: number, motivation?: string): Promise<ApplicationItemDto> {
     const meeting = await this.requireMeeting(meetingId);
 
-    if (!this.isRecruiting(meeting.announcementDate)) {
+    if (!this.isRecruiting(meeting.deadlineDate)) {
       throw new BadRequestException(RECRUITING_CLOSED_MESSAGE);
     }
 
-    const existingApplication = await this.applicationRepository.findOne({ where: { meetingId, userId } });
+    const existingApplication = await this.applicationRepository.findOne({
+      where: { meetingId, userId },
+      relations: { user: true },
+    });
 
     if (existingApplication) {
+      // Allow reapply if meeting policy allows and previous application was REJECTED
+      if (meeting.allowReapply && existingApplication.status === ApplicationStatus.REJECTED) {
+        existingApplication.status = ApplicationStatus.PENDING;
+        existingApplication.motivation = motivation ?? null;
+        const saved = await this.applicationRepository.save(existingApplication);
+        return this.toApplicationItem(saved);
+      }
+
       throw new ConflictException(DUPLICATE_APPLICATION_MESSAGE);
     }
 
@@ -43,10 +54,16 @@ export class ApplicationsService {
       meetingId,
       userId,
       status: ApplicationStatus.PENDING,
+      motivation: motivation ?? null,
     });
 
     const saved = await this.applicationRepository.save(application);
-    return this.toApplicationItem(saved);
+    // Reload with user relation for the response
+    const reloaded = await this.applicationRepository.findOne({
+      where: { id: saved.id },
+      relations: { user: true },
+    });
+    return this.toApplicationItem(reloaded!);
   }
 
   async cancel(meetingId: number, applicationId: number, userId: number): Promise<{ id: number }> {
@@ -74,6 +91,31 @@ export class ApplicationsService {
     });
 
     return applications.map((application) => this.toApplicationItem(application));
+  }
+
+  async listByUser(userId: number): Promise<MyApplicationItemDto[]> {
+    const applications = await this.applicationRepository.find({
+      where: { userId },
+      relations: { meeting: true },
+      order: { createdAt: "DESC" },
+    });
+
+    return applications.map((application) => {
+      const isResultVisible = this.isAnnouncementPast(application.meeting.announcementDate);
+      const displayStatus = isResultVisible ? application.status : ApplicationStatus.PENDING;
+
+      return {
+        id: application.id,
+        meetingId: application.meetingId,
+        meetingTitle: application.meeting.title,
+        meetingCategory: application.meeting.category,
+        announcementDate: application.meeting.announcementDate,
+        status: application.status,
+        displayStatus,
+        resultMessage: this.toResultMessage(displayStatus, isResultVisible),
+        createdAt: application.createdAt.toISOString(),
+      };
+    });
   }
 
   async updateStatus(meetingId: number, applicationId: number, status: ApplicationStatus): Promise<ApplicationItemDto> {
@@ -195,6 +237,32 @@ export class ApplicationsService {
     }
   }
 
+  private isRecruiting(deadlineDate: string): boolean {
+    const today = new Date().toISOString().slice(0, 10);
+    return deadlineDate >= today;
+  }
+
+  private isAnnouncementPast(announcementDate: string): boolean {
+    const today = new Date().toISOString().slice(0, 10);
+    return announcementDate <= today;
+  }
+
+  private toResultMessage(displayStatus: ApplicationStatus, isResultVisible: boolean): string {
+    if (!isResultVisible) {
+      return "발표일에 결과가 공개됩니다";
+    }
+
+    if (displayStatus === ApplicationStatus.SELECTED) {
+      return "축하합니다! 모임에 선정되었어요";
+    }
+
+    if (displayStatus === ApplicationStatus.REJECTED) {
+      return "아쉽게도 이번 모임에 함께하지 못했어요";
+    }
+
+    return "결과 대기중";
+  }
+
   private async requireMeeting(meetingId: number): Promise<Meeting> {
     const meeting = await this.meetingRepository.findOne({ where: { id: meetingId } });
 
@@ -239,16 +307,6 @@ export class ApplicationsService {
     return application;
   }
 
-  private isRecruiting(announcementDate: string): boolean {
-    const today = new Date();
-    today.setHours(0, 0, 0, 0);
-
-    const announcement = new Date(`${announcementDate}T00:00:00`);
-    announcement.setHours(0, 0, 0, 0);
-
-    return announcement > today;
-  }
-
   private toApplicationItem(application: Application): ApplicationItemDto {
     return {
       id: application.id,
@@ -256,8 +314,10 @@ export class ApplicationsService {
       meetingId: application.meetingId,
       status: application.status,
       displayStatus: application.status,
+      motivation: application.motivation ?? undefined,
       userName: application.user?.name,
       userEmail: application.user?.email,
+      userPhone: application.user?.phone,
       createdAt: application.createdAt.toISOString(),
       updatedAt: application.updatedAt.toISOString(),
     };
