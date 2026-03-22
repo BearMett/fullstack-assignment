@@ -73,9 +73,20 @@ describe("getRelativeDateLabel", () => {
     expect(getRelativeDateLabel("2024-06-15T17:00:00Z")).toBe("5시간 후");
   });
 
+  it("23시간 경계에서도 'N시간 후'를 반환한다", () => {
+    vi.useFakeTimers();
+    vi.setSystemTime(new Date("2024-06-15T12:00:00Z"));
+    // 18시간 후 — diffHours < 24 분기를 12 미만으로 변형하면 잡히는 mutant
+    expect(getRelativeDateLabel("2024-06-16T06:00:00Z")).toBe("18시간 후");
+    // 23시간 후 — 실제 24시간 경계 직전 값
+    expect(getRelativeDateLabel("2024-06-16T11:00:00Z")).toBe("23시간 후");
+  });
+
   it("24시간 이상이면 'D-N'을 반환한다", () => {
     vi.useFakeTimers();
     vi.setSystemTime(new Date("2024-06-15T12:00:00Z"));
+    // 정확히 24시간 → Math.round(24) = 24, diffHours < 24 false → D-1
+    expect(getRelativeDateLabel("2024-06-16T12:00:00Z")).toBe("D-1");
     expect(getRelativeDateLabel("2024-06-18T12:00:00Z")).toBe("D-3");
   });
 
