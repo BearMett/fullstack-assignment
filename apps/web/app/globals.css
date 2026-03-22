@@ -446,6 +446,24 @@ textarea {
   background: rgba(186, 88, 54, 0.12);
   color: var(--accent-strong);
   padding: 0.9rem 1rem;
+  animation: slide-in-banner 200ms ease-out;
+}
+
+@keyframes slide-in-banner {
+  from {
+    opacity: 0;
+    max-height: 0;
+    padding-top: 0;
+    padding-bottom: 0;
+    margin-top: 0;
+    margin-bottom: 0;
+  }
+  to {
+    opacity: 1;
+    max-height: 5rem;
+    padding-top: 0.9rem;
+    padding-bottom: 0.9rem;
+  }
 }
 
 .success-banner {

@@ -150,26 +150,25 @@ export function MeetingDetailView({ meetingId }: MeetingDetailViewProps) {
             <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
               <span>👥</span>
               <span>모집 <strong>{meeting.applicantCount}/{meeting.maxParticipants}명</strong></span>
-              {meeting.applicantCount > 0 && (
+              <div
+                style={{
+                  width: "6rem",
+                  height: "0.4rem",
+                  background: "var(--line-soft)",
+                  borderRadius: "var(--radius-pill)",
+                  overflow: "hidden",
+                }}
+              >
                 <div
                   style={{
-                    width: "6rem",
-                    height: "0.4rem",
-                    background: "var(--line-soft)",
+                    width: `${Math.min(100, (meeting.applicantCount / meeting.maxParticipants) * 100)}%`,
+                    height: "100%",
+                    background: meeting.applicantCount > 0 ? "var(--accent)" : "transparent",
                     borderRadius: "var(--radius-pill)",
-                    overflow: "hidden",
+                    transition: "width 300ms ease",
                   }}
-                >
-                  <div
-                    style={{
-                      width: `${Math.min(100, (meeting.applicantCount / meeting.maxParticipants) * 100)}%`,
-                      height: "100%",
-                      background: "var(--accent)",
-                      borderRadius: "var(--radius-pill)",
-                    }}
-                  />
-                </div>
-              )}
+                />
+              </div>
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
               <span>📅</span>

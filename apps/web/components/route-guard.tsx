@@ -35,6 +35,21 @@ function GatePanel({ eyebrow, title, description, actionHref, actionLabel }: Gat
   );
 }
 
+function HydrationShell() {
+  return (
+    <main className="page-shell" data-testid="page-shell">
+      <div style={{ margin: "0 auto", width: "min(100%, var(--content-width))" }}>
+        <div className="stack-md" style={{ paddingTop: "0.5rem" }}>
+          <div className="loading-block loading-pill" />
+          <div className="loading-block loading-title" />
+          <div className="loading-block loading-copy" />
+          <div className="loading-block loading-copy short" />
+        </div>
+      </div>
+    </main>
+  );
+}
+
 export function GuestOnly({ children }: { children: ReactNode }) {
   const router = useRouter();
   const session = useAuthStore((state) => state.session);
@@ -47,25 +62,11 @@ export function GuestOnly({ children }: { children: ReactNode }) {
   }, [hasHydrated, router, session]);
 
   if (!hasHydrated) {
-    return (
-      <GatePanel
-        description="저장된 로그인 상태를 확인한 뒤 가장 알맞은 화면으로 안내합니다."
-        eyebrow="Session"
-        title="세션을 확인하는 중입니다"
-      />
-    );
+    return <HydrationShell />;
   }
 
   if (session) {
-    return (
-      <GatePanel
-        actionHref="/meetings"
-        actionLabel="모임 화면으로 이동"
-        description="이미 로그인되어 있어 보호된 모임 화면으로 바로 이동합니다."
-        eyebrow="Welcome Back"
-        title="잠시만 기다려 주세요"
-      />
-    );
+    return <HydrationShell />;
   }
 
   return <>{children}</>;
@@ -83,13 +84,7 @@ export function ProtectedRoute({ children }: { children: ReactNode }) {
   }, [hasHydrated, router, session]);
 
   if (!hasHydrated) {
-    return (
-      <GatePanel
-        description="저장된 세션이 있는지 먼저 확인한 뒤 모임 화면을 준비합니다."
-        eyebrow="Protected"
-        title="보호된 공간을 준비하는 중입니다"
-      />
-    );
+    return <HydrationShell />;
   }
 
   if (!session) {
@@ -97,7 +92,7 @@ export function ProtectedRoute({ children }: { children: ReactNode }) {
       <GatePanel
         actionHref="/login"
         actionLabel="로그인으로 이동"
-        description="모임 화면은 로그인 후 이용할 수 있습니다. 로그인 페이지로 안내합니다."
+        description="모임 화면은 로그인 후 이용할 수 있습니다."
         eyebrow="Protected"
         title="로그인이 필요합니다"
       />
@@ -119,13 +114,7 @@ export function AdminOnlyRoute({ children }: { children: ReactNode }) {
   }, [hasHydrated, router, session]);
 
   if (!hasHydrated) {
-    return (
-      <GatePanel
-        description="저장된 세션과 권한을 확인한 뒤 관리자 전용 화면을 준비합니다."
-        eyebrow="Admin"
-        title="운영 권한을 확인하는 중입니다"
-      />
-    );
+    return <HydrationShell />;
   }
 
   if (!session) {
@@ -133,7 +122,7 @@ export function AdminOnlyRoute({ children }: { children: ReactNode }) {
       <GatePanel
         actionHref="/login"
         actionLabel="로그인으로 이동"
-        description="관리자 화면은 로그인 후 이용할 수 있습니다. 로그인 페이지로 안내합니다."
+        description="관리자 화면은 로그인 후 이용할 수 있습니다."
         eyebrow="Admin"
         title="로그인이 필요합니다"
       />
@@ -145,7 +134,7 @@ export function AdminOnlyRoute({ children }: { children: ReactNode }) {
       <GatePanel
         actionHref="/meetings"
         actionLabel="모임 목록으로 이동"
-        description="이 화면은 관리자만 사용할 수 있습니다. 현재 계정에서는 모임 탐색과 개인 신청 흐름만 열어 둡니다."
+        description="이 화면은 관리자만 사용할 수 있습니다."
         eyebrow="Admin"
         title="운영 권한이 필요한 화면입니다"
       />

@@ -80,12 +80,16 @@ function LoadingCards() {
     <div className="stack-md">
       {Array.from({ length: 3 }).map((_, index) => (
         <div className="meeting-card stack-md" key={`loading-${index}`}>
-          <div className="loading-block loading-pill" />
+          <div style={{ display: "flex", gap: "0.5rem" }}>
+            <div className="loading-block" style={{ height: "2.2rem", width: "5rem", borderRadius: "var(--radius-pill)" }} />
+            <div className="loading-block" style={{ height: "2.2rem", width: "4.5rem", borderRadius: "var(--radius-pill)" }} />
+          </div>
+          <div className="loading-block" style={{ height: "1.4rem", width: "70%", borderRadius: "0.7rem" }} />
           <div className="stack-sm">
-            <div className="loading-block loading-title" />
             <div className="loading-block loading-copy" />
             <div className="loading-block loading-copy short" />
           </div>
+          <div className="loading-block" style={{ height: "1rem", width: "80%", borderRadius: "0.5rem", borderTop: "1px solid var(--line-soft)", paddingTop: "0.75rem" }} />
         </div>
       ))}
     </div>
