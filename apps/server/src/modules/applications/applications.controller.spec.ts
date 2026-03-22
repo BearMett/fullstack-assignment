@@ -297,7 +297,6 @@ describe("ApplicationsController", () => {
         maxParticipants,
         deadlineDate: formatDate(deadlineDate),
         announcementDate: formatDate(announcementDate),
-        allowReapply: false,
       })
     );
   }

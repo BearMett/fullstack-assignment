@@ -23,7 +23,6 @@ type MeetingSeed = {
   maxParticipants: number;
   deadlineDate: string;
   announcementDate: string;
-  allowReapply: boolean;
 };
 
 type ApplicationSeed = {
@@ -50,7 +49,6 @@ const meetingSeeds: MeetingSeed[] = [
     maxParticipants: 8,
     deadlineDate: "2026-03-15",
     announcementDate: "2026-03-17",
-    allowReapply: false,
   },
   {
     title: "영어 스피킹 클럽 — Free Talk",
@@ -60,7 +58,6 @@ const meetingSeeds: MeetingSeed[] = [
     maxParticipants: 10,
     deadlineDate: "2026-03-18",
     announcementDate: "2026-03-20",
-    allowReapply: false,
   },
   {
     title: "주말 러닝 크루 4기",
@@ -70,7 +67,6 @@ const meetingSeeds: MeetingSeed[] = [
     maxParticipants: 15,
     deadlineDate: "2026-03-20",
     announcementDate: "2026-03-24",
-    allowReapply: false,
   },
   {
     title: "요가 & 명상 소모임",
@@ -80,7 +76,6 @@ const meetingSeeds: MeetingSeed[] = [
     maxParticipants: 2,
     deadlineDate: "2026-03-28",
     announcementDate: "2026-03-31",
-    allowReapply: true,
   },
   {
     title: "4월 독서 모임: 달러구트 꿈 백화점",
@@ -90,7 +85,6 @@ const meetingSeeds: MeetingSeed[] = [
     maxParticipants: 8,
     deadlineDate: "2026-04-05",
     announcementDate: "2026-04-08",
-    allowReapply: true,
   },
   {
     title: "매일 기록 챌린지 — 30일 일기",
@@ -100,7 +94,6 @@ const meetingSeeds: MeetingSeed[] = [
     maxParticipants: 20,
     deadlineDate: "2026-04-12",
     announcementDate: "2026-04-15",
-    allowReapply: true,
   },
 ];
 

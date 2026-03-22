@@ -34,9 +34,6 @@ export class Meeting {
   @Column({ type: "date" })
   announcementDate: string;
 
-  @Column({ type: "boolean", default: false })
-  allowReapply: boolean;
-
   @CreateDateColumn({ type: "datetime" })
   createdAt: Date;
 

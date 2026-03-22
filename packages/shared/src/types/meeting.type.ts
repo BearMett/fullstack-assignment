@@ -15,7 +15,6 @@ export interface MeetingType {
   maxParticipants: number;
   deadlineDate: string;
   announcementDate: string;
-  allowReapply: boolean;
   createdAt: string;
   updatedAt: string;
 }

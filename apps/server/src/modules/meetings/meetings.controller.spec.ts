@@ -92,7 +92,6 @@ describe("MeetingsController (core)", () => {
       maxParticipants: 5,
       deadlineDate: dateOffset(2),
       announcementDate: dateOffset(3),
-      allowReapply: false,
     };
 
     const unauthorizedResponse = await request(app.getHttpServer()).post("/api/meetings").send(payload);
@@ -122,8 +121,7 @@ describe("MeetingsController (core)", () => {
         maxParticipants: 6,
         deadlineDate,
         announcementDate,
-        allowReapply: false,
-      });
+        });
 
     expect(response.status).toBe(201);
     expect(response.body).toEqual(
@@ -134,8 +132,7 @@ describe("MeetingsController (core)", () => {
         maxParticipants: 6,
         deadlineDate,
         announcementDate,
-        allowReapply: false,
-      })
+        })
     );
   });
 
@@ -152,8 +149,7 @@ describe("MeetingsController (core)", () => {
         maxParticipants: 5,
         deadlineDate: dateOffset(2),
         announcementDate: dateOffset(3),
-        allowReapply: false,
-      });
+        });
 
     expect(invalidCategoryResponse.status).toBe(400);
 
@@ -167,8 +163,7 @@ describe("MeetingsController (core)", () => {
         maxParticipants: 3,
         deadlineDate: dateOffset(-1),
         announcementDate: dateOffset(-1),
-        allowReapply: false,
-      });
+        });
 
     expect(invalidAnnouncementDateResponse.status).toBe(400);
 
@@ -182,8 +177,7 @@ describe("MeetingsController (core)", () => {
         maxParticipants: 0,
         deadlineDate: dateOffset(2),
         announcementDate: dateOffset(3),
-        allowReapply: false,
-      });
+        });
 
     expect(invalidMaxParticipantsResponse.status).toBe(400);
   });
@@ -199,7 +193,6 @@ describe("MeetingsController (core)", () => {
       maxParticipants: 2,
       deadlineDate: dateOffset(2),
       announcementDate: dateOffset(3),
-      allowReapply: false,
     });
 
     const closedMeeting = await meetingRepository.save({
@@ -209,7 +202,6 @@ describe("MeetingsController (core)", () => {
       maxParticipants: 2,
       deadlineDate: dateOffset(-3),
       announcementDate: dateOffset(-2),
-      allowReapply: false,
     });
 
     await applicationRepository.save({
@@ -267,7 +259,6 @@ describe("MeetingsController (core)", () => {
       maxParticipants: 5,
       deadlineDate: dateOffset(1),
       announcementDate: dateOffset(2),
-      allowReapply: false,
     });
 
     const listResponse = await request(app.getHttpServer()).get("/api/meetings");
@@ -287,7 +278,6 @@ describe("MeetingsController (core)", () => {
       maxParticipants: 7,
       deadlineDate: dateOffset(2),
       announcementDate: dateOffset(3),
-      allowReapply: false,
     });
 
     const application = await applicationRepository.save({
@@ -327,7 +317,6 @@ describe("MeetingsController (core)", () => {
       maxParticipants: 5,
       deadlineDate: dateOffset(-1),
       announcementDate: dateOffset(0),
-      allowReapply: false,
     });
 
     const application = await applicationRepository.save({
@@ -364,7 +353,6 @@ describe("MeetingsController (core)", () => {
       maxParticipants: 8,
       deadlineDate: dateOffset(1),
       announcementDate: dateOffset(2),
-      allowReapply: false,
     });
 
     const response = await request(app.getHttpServer())
@@ -389,7 +377,6 @@ describe("MeetingsController (core)", () => {
       maxParticipants: 2,
       deadlineDate: dateOffset(2),
       announcementDate: dateOffset(3),
-      allowReapply: false,
     });
 
     await applicationRepository.save([

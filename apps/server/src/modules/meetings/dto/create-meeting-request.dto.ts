@@ -1,5 +1,5 @@
 import { CreateMeetingDto, MeetingCategory } from "@packages/shared";
-import { IsBoolean, IsEnum, IsInt, IsString, Matches, Min, MinLength } from "class-validator";
+import { IsEnum, IsInt, IsString, Matches, Min, MinLength } from "class-validator";
 import { IsFutureDateString } from "./is-future-date-string.decorator";
 
 export class CreateMeetingRequestDto implements CreateMeetingDto {
@@ -26,6 +26,4 @@ export class CreateMeetingRequestDto implements CreateMeetingDto {
   @IsFutureDateString()
   announcementDate: string;
 
-  @IsBoolean()
-  allowReapply: boolean;
 }

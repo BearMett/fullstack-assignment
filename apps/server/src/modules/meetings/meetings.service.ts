@@ -36,7 +36,6 @@ export class MeetingsService {
           maxParticipants: meeting.maxParticipants,
           deadlineDate: meeting.deadlineDate,
           announcementDate: meeting.announcementDate,
-          allowReapply: meeting.allowReapply,
           isRecruiting: this.isRecruiting(meeting.deadlineDate),
           applicantCount,
         } satisfies MeetingListItemDto;
@@ -104,7 +103,6 @@ export class MeetingsService {
       maxParticipants: meeting.maxParticipants,
       deadlineDate: meeting.deadlineDate,
       announcementDate: meeting.announcementDate,
-      allowReapply: meeting.allowReapply,
       createdAt: meeting.createdAt.toISOString(),
       updatedAt: meeting.updatedAt.toISOString(),
     };

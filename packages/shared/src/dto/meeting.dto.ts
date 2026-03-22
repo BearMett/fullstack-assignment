@@ -8,7 +8,6 @@ export interface CreateMeetingDto {
   maxParticipants: number;
   deadlineDate: string;
   announcementDate: string;
-  allowReapply: boolean;
 }
 
 export interface MeetingListItemDto {
@@ -19,7 +18,6 @@ export interface MeetingListItemDto {
   maxParticipants: number;
   deadlineDate: string;
   announcementDate: string;
-  allowReapply: boolean;
   isRecruiting: boolean;
   applicantCount: number;
 }

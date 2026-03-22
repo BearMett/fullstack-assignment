@@ -151,9 +151,7 @@ export function AdminMeetingDetail({ meetingId }: { meetingId: number }) {
                 style={
                   badge.tone === "category"
                     ? { background: "rgba(255,255,255,0.72)", border: "1px solid var(--line-soft)" }
-                    : badge.tone === "reapply"
-                      ? { background: "var(--success-soft)", border: "1px solid rgba(58,116,82,0.2)", color: "var(--success-ink)" }
-                      : undefined
+                    : undefined
                 }
               >
                 {badge.label}

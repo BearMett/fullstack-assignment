@@ -19,7 +19,6 @@ export function AdminMeetingCreate() {
     maxParticipants: "",
     deadlineDate: "",
     announcementDate: "",
-    allowReapply: false,
   });
 
   const handleSubmit = (e: { preventDefault: () => void }) => {
@@ -34,7 +33,6 @@ export function AdminMeetingCreate() {
         maxParticipants: parseInt(form.maxParticipants, 10),
         deadlineDate: form.deadlineDate,
         announcementDate: form.announcementDate,
-        allowReapply: form.allowReapply,
       },
       {
         onSuccess: () => {
@@ -144,56 +142,6 @@ export function AdminMeetingCreate() {
                   type="date"
                   value={form.announcementDate}
                 />
-              </label>
-            </div>
-
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                background: "var(--neutral-soft)",
-                borderRadius: "1rem",
-                padding: "1rem",
-              }}
-            >
-              <div>
-                <strong style={{ fontSize: "0.95rem" }}>재신청 허용</strong>
-                <p className="meta-copy" style={{ fontSize: "0.82rem", marginTop: "0.2rem" }}>
-                  허용 시, 사용자가 마감일 전까지 신청을 수정/재신청할 수 있습니다.
-                </p>
-              </div>
-              <label style={{ position: "relative", display: "inline-block", width: "3rem", height: "1.6rem" }}>
-                <input
-                  type="checkbox"
-                  checked={form.allowReapply}
-                  onChange={(e) => setForm((s) => ({ ...s, allowReapply: e.target.checked }))}
-                  style={{ opacity: 0, width: 0, height: 0 }}
-                />
-                <span
-                  style={{
-                    position: "absolute",
-                    cursor: "pointer",
-                    inset: 0,
-                    background: form.allowReapply ? "var(--accent)" : "var(--line-soft)",
-                    borderRadius: "var(--radius-pill)",
-                    transition: "background 200ms",
-                  }}
-                >
-                  <span
-                    style={{
-                      position: "absolute",
-                      left: form.allowReapply ? "1.5rem" : "0.15rem",
-                      top: "0.15rem",
-                      width: "1.3rem",
-                      height: "1.3rem",
-                      background: "#fff",
-                      borderRadius: "50%",
-                      transition: "left 200ms",
-                      boxShadow: "0 1px 3px rgba(0,0,0,0.15)",
-                    }}
-                  />
-                </span>
               </label>
             </div>
 

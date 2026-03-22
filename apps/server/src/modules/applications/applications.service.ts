@@ -39,14 +39,6 @@ export class ApplicationsService {
     });
 
     if (existingApplication) {
-      // Allow reapply if meeting policy allows and previous application was REJECTED
-      if (meeting.allowReapply && existingApplication.status === ApplicationStatus.REJECTED) {
-        existingApplication.status = ApplicationStatus.PENDING;
-        existingApplication.motivation = motivation ?? null;
-        const saved = await this.applicationRepository.save(existingApplication);
-        return this.toApplicationItem(saved);
-      }
-
       throw new ConflictException(DUPLICATE_APPLICATION_MESSAGE);
     }
 

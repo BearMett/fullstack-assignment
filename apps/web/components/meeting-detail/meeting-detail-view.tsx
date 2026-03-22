@@ -116,9 +116,7 @@ export function MeetingDetailView({ meetingId }: MeetingDetailViewProps) {
                 style={
                   badge.tone === "category"
                     ? { background: "rgba(255,255,255,0.72)", border: "1px solid var(--line-soft)" }
-                    : badge.tone === "reapply"
-                      ? { background: "var(--success-soft)", border: "1px solid rgba(58,116,82,0.2)", color: "var(--success-ink)" }
-                      : undefined
+                    : undefined
                 }
               >
                 {badge.label}
@@ -201,19 +199,6 @@ export function MeetingDetailView({ meetingId }: MeetingDetailViewProps) {
             </div>
           </div>
 
-          {!meeting.allowReapply && (
-            <div
-              style={{
-                background: "var(--neutral-soft)",
-                borderRadius: "1rem",
-                padding: "0.75rem 1rem",
-                fontSize: "0.88rem",
-                color: "var(--ink-subtle)",
-              }}
-            >
-              ⓘ 이 모임은 재신청이 불가합니다. 신중하게 신청해주세요.
-            </div>
-          )}
         </section>
 
         <div style={{ marginTop: "1.25rem" }}>

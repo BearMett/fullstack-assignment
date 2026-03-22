@@ -107,7 +107,6 @@ type MeetingBadge = {
 export function getMeetingStatusBadges(meeting: {
   category: MeetingCategory;
   isRecruiting: boolean;
-  allowReapply: boolean;
   announcementDate: string;
 }, options?: { isAdmin?: boolean }): MeetingBadge[] {
   const badges: MeetingBadge[] = [];
@@ -122,10 +121,6 @@ export function getMeetingStatusBadges(meeting: {
 
   if (isAnnouncementPast) {
     badges.push({ label: "발표 완료", tone: "is-closed" });
-  }
-
-  if (meeting.allowReapply && options?.isAdmin) {
-    badges.push({ label: "재신청 가능", tone: "reapply" });
   }
 
   return badges;
