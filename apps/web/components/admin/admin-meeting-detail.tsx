@@ -216,7 +216,7 @@ export function AdminMeetingDetail({ meetingId }: { meetingId: number }) {
               {(["ALL", ApplicationStatus.PENDING, ApplicationStatus.SELECTED, ApplicationStatus.REJECTED] as StatusFilter[]).map((f) => (
                 <button
                   key={f}
-                  onClick={() => setStatusFilter(f)}
+                  onClick={() => { setStatusFilter(f); setSelectedIds([]); }}
                   type="button"
                   style={{
                     padding: "0.3rem 0.65rem",
