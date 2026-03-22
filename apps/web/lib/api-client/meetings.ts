@@ -1,14 +1,20 @@
 import { type CreateMeetingDto, type MeetingDetailDto, type MeetingListItemDto, type MeetingType } from "@packages/shared";
 import { BaseApiClient } from "./base";
 
+export interface MeetingsListParams {
+  includeClosed?: boolean;
+}
+
 class MeetingsApiClient extends BaseApiClient {
   async create(payload: CreateMeetingDto): Promise<MeetingType> {
     const response = await this.api.post<MeetingType>("/meetings", payload);
     return response.data;
   }
 
-  async list(): Promise<MeetingListItemDto[]> {
-    const response = await this.api.get<MeetingListItemDto[]>("/meetings");
+  async list(params?: MeetingsListParams): Promise<MeetingListItemDto[]> {
+    const response = await this.api.get<MeetingListItemDto[]>("/meetings", {
+      params: params?.includeClosed ? { includeClosed: true } : undefined,
+    });
     return response.data;
   }
 

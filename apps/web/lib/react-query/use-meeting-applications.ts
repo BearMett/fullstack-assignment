@@ -35,7 +35,7 @@ async function refreshMeetingQueries(
   includeApplicants = false
 ) {
   const invalidations = [
-    queryClient.invalidateQueries({ queryKey: meetingQueryKeys.all }),
+    queryClient.invalidateQueries({ queryKey: ["meetings"] }),
     queryClient.invalidateQueries({ queryKey: meetingQueryKeys.detail(meetingId) }),
   ];
 

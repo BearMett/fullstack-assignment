@@ -15,7 +15,7 @@ function getAdminMeetingStatus(meeting: MeetingListItemDto): { label: string; to
 }
 
 export function AdminMeetingsList() {
-  const meetingsQuery = useMeetingsQuery();
+  const meetingsQuery = useMeetingsQuery({ includeClosed: true });
   const meetings = meetingsQuery.data ?? [];
   const [searchQuery, setSearchQuery] = useState("");
 

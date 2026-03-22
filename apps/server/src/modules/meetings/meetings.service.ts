@@ -21,7 +21,7 @@ export class MeetingsService {
     return this.toMeetingType(savedMeeting);
   }
 
-  async list(role: UserRole): Promise<MeetingListItemDto[]> {
+  async list(includeClosed: boolean): Promise<MeetingListItemDto[]> {
     const meetings = await this.meetingRepository.find({ order: { id: "DESC" } });
 
     const rows = await Promise.all(
@@ -43,7 +43,7 @@ export class MeetingsService {
       })
     );
 
-    if (role === UserRole.ADMIN) {
+    if (includeClosed) {
       return rows;
     }
 

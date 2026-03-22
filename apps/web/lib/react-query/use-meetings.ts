@@ -2,17 +2,17 @@
 
 import { type CreateMeetingDto, type MeetingDetailDto, type MeetingListItemDto, type MeetingType } from "@packages/shared";
 import { useMutation, useQuery, useQueryClient, type UseMutationResult, type UseQueryResult } from "@tanstack/react-query";
-import { meetingsApiClient } from "@/lib/api-client";
+import { meetingsApiClient, type MeetingsListParams } from "@/lib/api-client/meetings";
 
 export const meetingQueryKeys = {
-  all: ["meetings"] as const,
+  all: (params?: MeetingsListParams) => ["meetings", params ?? {}] as const,
   detail: (meetingId: number) => ["meetings", meetingId] as const,
 };
 
-export function useMeetingsQuery(): UseQueryResult<MeetingListItemDto[]> {
+export function useMeetingsQuery(params?: MeetingsListParams): UseQueryResult<MeetingListItemDto[]> {
   return useQuery({
-    queryKey: meetingQueryKeys.all,
-    queryFn: () => meetingsApiClient.list(),
+    queryKey: meetingQueryKeys.all(params),
+    queryFn: () => meetingsApiClient.list(params),
   });
 }
 
@@ -31,7 +31,7 @@ export function useCreateMeetingMutation(): UseMutationResult<MeetingType, unkno
     mutationFn: (payload) => meetingsApiClient.create(payload),
     onSuccess: async (meeting) => {
       await Promise.all([
-        queryClient.invalidateQueries({ queryKey: meetingQueryKeys.all }),
+        queryClient.invalidateQueries({ queryKey: ["meetings"] }),
         queryClient.invalidateQueries({ queryKey: meetingQueryKeys.detail(meeting.id) }),
       ]);
     },
