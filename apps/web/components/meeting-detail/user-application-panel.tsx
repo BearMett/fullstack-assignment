@@ -3,7 +3,7 @@
 import { type MeetingDetailDto } from "@packages/shared";
 import { useState } from "react";
 import { extractApiErrorMessage } from "@/lib/api-client";
-import { getApplicationStatusCopy } from "@/lib/meeting-presenters";
+import { formatDateTimeFull, getApplicationStatusCopy } from "@/lib/meeting-presenters";
 import { useApplyToMeetingMutation, useCancelMeetingApplicationMutation } from "@/lib/react-query/use-meeting-applications";
 
 type UserApplicationPanelProps = {
@@ -71,10 +71,7 @@ export function UserApplicationPanel({ meeting }: UserApplicationPanelProps) {
 
   // User has already applied
   if (meeting.myApplication) {
-    const isBeforeAnnouncement = (() => {
-      const today = new Date().toISOString().slice(0, 10);
-      return meeting.announcementDate > today;
-    })();
+    const isBeforeAnnouncement = new Date(meeting.announcement) > new Date();
 
     return (
       <section className="detail-panel-card stack-md">
@@ -100,7 +97,7 @@ export function UserApplicationPanel({ meeting }: UserApplicationPanelProps) {
                 color: "var(--accent-strong)",
               }}
             >
-              ⏳ 결과는 발표일({meeting.announcementDate}) 이후에 확인할 수 있어요.
+              ⏳ 결과는 {formatDateTimeFull(meeting.announcement)} 이후에 확인할 수 있어요.
             </div>
           </>
         ) : (

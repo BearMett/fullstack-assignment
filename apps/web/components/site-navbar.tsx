@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { setUnauthorizedHandler } from "@/lib/api-client";
 import { useAuthStore } from "@/lib/store";
 
@@ -28,6 +28,20 @@ export function SiteNavbar() {
     clearSession();
     router.replace("/login");
   };
+
+  const [menuOpen, setMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!menuOpen) return;
+    const handleClick = (e: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(e.target as Node)) {
+        setMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClick);
+    return () => document.removeEventListener("mousedown", handleClick);
+  }, [menuOpen]);
 
   const isMeetingsPath = pathname.startsWith("/meetings");
   const isMyApplicationsPath = pathname.startsWith("/my-applications");
@@ -75,17 +89,23 @@ export function SiteNavbar() {
           >
             내 신청
           </Link>
-          <span className="nav-chip">
-            <strong>{session?.user.name ?? "\u00A0"}</strong>
-          </span>
-          <button
-            className="ghost-button"
-            onClick={handleLogout}
-            type="button"
-            style={{ minHeight: "2.5rem", padding: "0 0.75rem" }}
-          >
-            사용자 전환
-          </button>
+          <div className="user-menu-wrap" ref={menuRef}>
+            <button
+              className="nav-chip"
+              onClick={() => setMenuOpen((o) => !o)}
+              type="button"
+              style={{ cursor: "pointer" }}
+            >
+              <strong>{session?.user.name ?? "\u00A0"}</strong>
+            </button>
+            {menuOpen && (
+              <div className="user-menu-dropdown">
+                <button onClick={() => { handleLogout(); setMenuOpen(false); }}>
+                  사용자 전환
+                </button>
+              </div>
+            )}
+          </div>
         </div>
       </div>
     </header>

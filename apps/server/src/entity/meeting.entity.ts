@@ -28,11 +28,11 @@ export class Meeting {
   @Column({ type: "integer" })
   maxParticipants: number;
 
-  @Column({ type: "date" })
-  deadlineDate: string;
+  @Column({ type: "datetime" })
+  deadline: string;
 
-  @Column({ type: "date" })
-  announcementDate: string;
+  @Column({ type: "datetime" })
+  announcement: string;
 
   @CreateDateColumn({ type: "datetime" })
   createdAt: Date;

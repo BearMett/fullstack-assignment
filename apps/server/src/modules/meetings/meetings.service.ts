@@ -34,9 +34,9 @@ export class MeetingsService {
           category: meeting.category,
           description: meeting.description,
           maxParticipants: meeting.maxParticipants,
-          deadlineDate: meeting.deadlineDate,
-          announcementDate: meeting.announcementDate,
-          isRecruiting: this.isRecruiting(meeting.deadlineDate),
+          deadline: meeting.deadline,
+          announcement: meeting.announcement,
+          isRecruiting: this.isRecruiting(meeting.deadline),
           applicantCount,
         } satisfies MeetingListItemDto;
       })
@@ -56,7 +56,7 @@ export class MeetingsService {
       throw new NotFoundException("모임을 찾을 수 없습니다");
     }
 
-    const isRecruiting = this.isRecruiting(meeting.deadlineDate);
+    const isRecruiting = this.isRecruiting(meeting.deadline);
     const applicantCount = await this.applicationRepository.count({ where: { meetingId: meeting.id } });
 
     if (role === UserRole.ADMIN) {
@@ -84,14 +84,12 @@ export class MeetingsService {
       applicantCount,
       canApply: isRecruiting && !myApplication,
       canCancel: Boolean(myApplication && myApplication.status === ApplicationStatus.PENDING),
-      myApplication: myApplication ? this.toApplicationResult(myApplication, meeting.announcementDate) : null,
+      myApplication: myApplication ? this.toApplicationResult(myApplication, meeting.announcement) : null,
     };
   }
 
-  private isRecruiting(deadlineDate: string): boolean {
-    const today = new Date().toISOString().slice(0, 10);
-
-    return deadlineDate >= today;
+  private isRecruiting(deadline: string): boolean {
+    return new Date(deadline) > new Date();
   }
 
   private toMeetingType(meeting: Meeting): MeetingType {
@@ -101,20 +99,19 @@ export class MeetingsService {
       category: meeting.category,
       description: meeting.description,
       maxParticipants: meeting.maxParticipants,
-      deadlineDate: meeting.deadlineDate,
-      announcementDate: meeting.announcementDate,
+      deadline: meeting.deadline,
+      announcement: meeting.announcement,
       createdAt: meeting.createdAt.toISOString(),
       updatedAt: meeting.updatedAt.toISOString(),
     };
   }
 
-  private isAnnouncementPast(announcementDate: string): boolean {
-    const today = new Date().toISOString().slice(0, 10);
-    return announcementDate <= today;
+  private isAnnouncementPast(announcement: string): boolean {
+    return new Date(announcement) <= new Date();
   }
 
-  private toApplicationResult(application: Application, announcementDate: string): ApplicationResultType {
-    const isResultVisible = this.isAnnouncementPast(announcementDate);
+  private toApplicationResult(application: Application, announcement: string): ApplicationResultType {
+    const isResultVisible = this.isAnnouncementPast(announcement);
     const displayStatus = isResultVisible ? application.status : ApplicationStatus.PENDING;
 
     return {

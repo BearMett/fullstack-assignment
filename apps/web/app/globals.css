@@ -953,9 +953,19 @@ textarea {
     min-width: 0;
   }
 
-  .nav-chip {
+  .user-menu-wrap {
     grid-column: 1 / -1;
+  }
+
+  .user-menu-wrap .nav-chip {
     max-width: none;
+    width: 100%;
+  }
+
+  .user-menu-dropdown {
+    right: 0;
+    left: auto;
+    min-width: 10rem;
   }
 
   .page-shell {
@@ -1008,4 +1018,48 @@ textarea {
   .meta-row span:last-child {
     text-align: left;
   }
+}
+
+.user-menu-wrap {
+  position: relative;
+}
+
+.user-menu-dropdown {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 0.35rem);
+  min-width: 10rem;
+  border: 1px solid var(--line-soft);
+  border-radius: 1rem;
+  background: var(--surface-card);
+  box-shadow: var(--shadow-panel);
+  backdrop-filter: blur(14px);
+  padding: 0.35rem;
+  z-index: 50;
+  animation: menu-appear 120ms ease;
+}
+
+.user-menu-dropdown button {
+  display: flex;
+  align-items: center;
+  width: 100%;
+  padding: 0.55rem 0.75rem;
+  border: none;
+  border-radius: 0.7rem;
+  background: transparent;
+  font: inherit;
+  font-size: 0.85rem;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--foreground);
+  transition: background 150ms;
+}
+
+.user-menu-dropdown button:hover {
+  background: var(--neutral-soft);
+}
+
+@keyframes menu-appear {
+  from { opacity: 0; transform: translateY(-4px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
 }

@@ -1,34 +1,33 @@
 import { registerDecorator, ValidationArguments, ValidationOptions, ValidatorConstraint, ValidatorConstraintInterface } from "class-validator";
 
-@ValidatorConstraint({ name: "isFutureDateString", async: false })
-class IsFutureDateStringConstraint implements ValidatorConstraintInterface {
+@ValidatorConstraint({ name: "isFutureDateTime", async: false })
+class IsFutureDateTimeConstraint implements ValidatorConstraintInterface {
   validate(value: unknown): boolean {
     if (typeof value !== "string") {
       return false;
     }
 
-    if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) {
+    const date = new Date(value);
+    if (Number.isNaN(date.getTime())) {
       return false;
     }
 
-    const today = new Date().toISOString().slice(0, 10);
-
-    return value > today;
+    return date > new Date();
   }
 
   defaultMessage(_: ValidationArguments): string {
-    return "announcementDate must be a future date";
+    return "$property must be a future datetime";
   }
 }
 
-export function IsFutureDateString(validationOptions?: ValidationOptions): PropertyDecorator {
+export function IsFutureDateTime(validationOptions?: ValidationOptions): PropertyDecorator {
   return (object: object, propertyName: string | symbol) => {
     registerDecorator({
       target: object.constructor,
       propertyName: propertyName.toString(),
       options: validationOptions,
       constraints: [],
-      validator: IsFutureDateStringConstraint,
+      validator: IsFutureDateTimeConstraint,
     });
   };
 }

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { extractApiErrorMessage } from "@/lib/api-client";
 import {
+  formatDateTimeFull,
   getMeetingStatusBadges,
   getRelativeDateLabel,
 } from "@/lib/meeting-presenters";
@@ -65,8 +66,8 @@ function MeetingCard({ meeting }: { meeting: MeetingListItemDto }) {
           }}
         >
           <span>정원 {meeting.maxParticipants}명 · 신청 {meeting.applicantCount}명</span>
-          <span>마감 {meeting.deadlineDate} <span style={{ background: "var(--neutral-soft)", padding: "0.1rem 0.4rem", borderRadius: "var(--radius-pill)", fontSize: "0.8rem" }}>{getRelativeDateLabel(meeting.deadlineDate)}</span></span>
-          <span>발표 {meeting.announcementDate} <span style={{ background: "var(--neutral-soft)", padding: "0.1rem 0.4rem", borderRadius: "var(--radius-pill)", fontSize: "0.8rem" }}>{getRelativeDateLabel(meeting.announcementDate)}</span></span>
+          <span>마감 {formatDateTimeFull(meeting.deadline)} <span style={{ background: "var(--neutral-soft)", padding: "0.1rem 0.4rem", borderRadius: "var(--radius-pill)", fontSize: "0.8rem" }}>{getRelativeDateLabel(meeting.deadline)}</span></span>
+          <span>발표 {formatDateTimeFull(meeting.announcement)} <span style={{ background: "var(--neutral-soft)", padding: "0.1rem 0.4rem", borderRadius: "var(--radius-pill)", fontSize: "0.8rem" }}>{getRelativeDateLabel(meeting.announcement)}</span></span>
         </div>
       </article>
     </Link>

@@ -1,6 +1,6 @@
 import { CreateMeetingDto, MeetingCategory } from "@packages/shared";
-import { IsEnum, IsInt, IsString, Matches, Min, MinLength } from "class-validator";
-import { IsFutureDateString } from "./is-future-date-string.decorator";
+import { IsEnum, IsInt, IsString, Min, MinLength } from "class-validator";
+import { IsFutureDateTime } from "./is-future-datetime.decorator";
 
 export class CreateMeetingRequestDto implements CreateMeetingDto {
   @IsString()
@@ -18,12 +18,10 @@ export class CreateMeetingRequestDto implements CreateMeetingDto {
   @Min(1)
   maxParticipants: number;
 
-  @Matches(/^\d{4}-\d{2}-\d{2}$/)
-  @IsFutureDateString()
-  deadlineDate: string;
+  @IsFutureDateTime()
+  deadline: string;
 
-  @Matches(/^\d{4}-\d{2}-\d{2}$/)
-  @IsFutureDateString()
-  announcementDate: string;
+  @IsFutureDateTime()
+  announcement: string;
 
 }

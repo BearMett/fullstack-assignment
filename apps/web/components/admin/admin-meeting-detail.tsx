@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { extractApiErrorMessage } from "@/lib/api-client";
 import {
+  formatDateTimeFull,
   getApplicationStatusCopy,
   getMeetingStatusBadges,
   getRelativeDateLabel,
@@ -129,8 +130,7 @@ export function AdminMeetingDetail({ meetingId }: { meetingId: number }) {
   }
 
   const badges = getMeetingStatusBadges(meeting, { isAdmin: true });
-  const today = new Date().toISOString().slice(0, 10);
-  const isAnnouncementPast = meeting.announcementDate <= today;
+  const isAnnouncementPast = new Date(meeting.announcement) <= new Date();
 
   return (
     <main className="page-shell" data-testid="page-shell">
@@ -189,8 +189,8 @@ export function AdminMeetingDetail({ meetingId }: { meetingId: number }) {
           </div>
 
           <div style={{ display: "flex", gap: "1.5rem", fontSize: "0.88rem", color: "var(--ink-subtle)" }}>
-            <span>마감 {meeting.deadlineDate} <span style={{ background: "var(--neutral-soft)", padding: "0.1rem 0.35rem", borderRadius: "var(--radius-pill)", fontSize: "0.75rem" }}>{getRelativeDateLabel(meeting.deadlineDate)}</span></span>
-            <span>발표 {meeting.announcementDate} <span style={{ background: "var(--neutral-soft)", padding: "0.1rem 0.35rem", borderRadius: "var(--radius-pill)", fontSize: "0.75rem" }}>{getRelativeDateLabel(meeting.announcementDate)}</span></span>
+            <span>마감 {formatDateTimeFull(meeting.deadline)} <span style={{ background: "var(--neutral-soft)", padding: "0.1rem 0.35rem", borderRadius: "var(--radius-pill)", fontSize: "0.75rem" }}>{getRelativeDateLabel(meeting.deadline)}</span></span>
+            <span>발표 {formatDateTimeFull(meeting.announcement)} <span style={{ background: "var(--neutral-soft)", padding: "0.1rem 0.35rem", borderRadius: "var(--radius-pill)", fontSize: "0.75rem" }}>{getRelativeDateLabel(meeting.announcement)}</span></span>
           </div>
 
           {isAnnouncementPast && (

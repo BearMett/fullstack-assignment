@@ -3,12 +3,11 @@
 import { type MeetingListItemDto, MeetingCategory } from "@packages/shared";
 import Link from "next/link";
 import { useMemo, useState } from "react";
-import { getMeetingCategoryIcon, getMeetingCategoryLabel, getRelativeDateLabel } from "@/lib/meeting-presenters";
+import { formatDateTimeShort, getMeetingCategoryIcon, getMeetingCategoryLabel, getRelativeDateLabel } from "@/lib/meeting-presenters";
 import { useMeetingsQuery } from "@/lib/react-query/use-meetings";
 
 function getAdminMeetingStatus(meeting: MeetingListItemDto): { label: string; tone: string } {
-  const today = new Date().toISOString().slice(0, 10);
-  if (meeting.deadlineDate >= today) {
+  if (new Date(meeting.deadline) > new Date()) {
     return { label: "모집 중", tone: "is-open" };
   }
   return { label: "결과 확정", tone: "is-closed" };
@@ -96,8 +95,8 @@ export function AdminMeetingsList() {
                     </span>
                   </span>
                   <span>{meeting.maxParticipants}명 <span style={{ color: "var(--ink-subtle)", fontSize: "0.8rem" }}>({meeting.applicantCount}명 신청)</span></span>
-                  <span>{meeting.deadlineDate} <span style={{ background: "var(--neutral-soft)", padding: "0.1rem 0.35rem", borderRadius: "var(--radius-pill)", fontSize: "0.75rem" }}>{getRelativeDateLabel(meeting.deadlineDate)}</span></span>
-                  <span>{meeting.announcementDate} <span style={{ background: "var(--neutral-soft)", padding: "0.1rem 0.35rem", borderRadius: "var(--radius-pill)", fontSize: "0.75rem" }}>{getRelativeDateLabel(meeting.announcementDate)}</span></span>
+                  <span>{formatDateTimeShort(meeting.deadline)} <span style={{ background: "var(--neutral-soft)", padding: "0.1rem 0.35rem", borderRadius: "var(--radius-pill)", fontSize: "0.75rem" }}>{getRelativeDateLabel(meeting.deadline)}</span></span>
+                  <span>{formatDateTimeShort(meeting.announcement)} <span style={{ background: "var(--neutral-soft)", padding: "0.1rem 0.35rem", borderRadius: "var(--radius-pill)", fontSize: "0.75rem" }}>{getRelativeDateLabel(meeting.announcement)}</span></span>
                   <span style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
                     <span className={`meeting-state-badge ${status.tone}`} style={{ fontSize: "0.78rem", minHeight: "1.8rem", padding: "0 0.6rem", whiteSpace: "nowrap" }}>{status.label}</span>
                     <span style={{ color: "var(--ink-subtle)" }}>›</span>

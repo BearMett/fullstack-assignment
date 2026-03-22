@@ -68,7 +68,7 @@ describe("ApplicationsController", () => {
 
   it("POST /api/meetings/:meetingId/applications applies once per user when recruiting", async () => {
     const userToken = await registerAndLogin("apply-user@example.com", "신청유저");
-    const meeting = await createMeeting(10, 1);
+    const meeting = await createMeeting(10, 24);
 
     const applyResponse = await request(app.getHttpServer())
       .post(`/api/meetings/${meeting.id}/applications`)
@@ -88,7 +88,7 @@ describe("ApplicationsController", () => {
   });
 
   it("POST /api/meetings/:meetingId/applications blocks unauthenticated and closed recruiting", async () => {
-    const meeting = await createMeeting(10, -1);
+    const meeting = await createMeeting(10, -24);
 
     const noAuthResponse = await request(app.getHttpServer()).post(`/api/meetings/${meeting.id}/applications`).send();
     expect(noAuthResponse.status).toBe(401);
@@ -104,7 +104,7 @@ describe("ApplicationsController", () => {
 
   it("DELETE /api/meetings/:meetingId/applications/:applicationId only deletes caller pending application and allows reapply", async () => {
     const userToken = await registerAndLogin("cancel-user@example.com", "취소유저");
-    const meeting = await createMeeting(10, 1);
+    const meeting = await createMeeting(10, 24);
 
     const applied = await request(app.getHttpServer())
       .post(`/api/meetings/${meeting.id}/applications`)
@@ -137,7 +137,7 @@ describe("ApplicationsController", () => {
   it("DELETE /api/meetings/:meetingId/applications/:applicationId rejects non-pending cancellation", async () => {
     const adminToken = await registerAndLogin("admin-cancel@example.com", "관리자", UserRole.ADMIN);
     const userToken = await registerAndLogin("selected-user@example.com", "선정유저");
-    const meeting = await createMeeting(1, 1);
+    const meeting = await createMeeting(1, 24);
 
     const applied = await request(app.getHttpServer())
       .post(`/api/meetings/${meeting.id}/applications`)
@@ -160,7 +160,7 @@ describe("ApplicationsController", () => {
   it("GET /api/admin/meetings/:meetingId/applications lists applicants for admin only", async () => {
     const adminToken = await registerAndLogin("admin-list@example.com", "관리자", UserRole.ADMIN);
     const userToken = await registerAndLogin("user-list@example.com", "사용자");
-    const meeting = await createMeeting(10, 1);
+    const meeting = await createMeeting(10, 24);
 
     await request(app.getHttpServer())
       .post(`/api/meetings/${meeting.id}/applications`)
@@ -189,7 +189,7 @@ describe("ApplicationsController", () => {
     const adminToken = await registerAndLogin("admin-single@example.com", "관리자", UserRole.ADMIN);
     const selectedUserToken = await registerAndLogin("selected-single@example.com", "선정대상");
     const rejectedUserToken = await registerAndLogin("rejected-single@example.com", "탈락대상");
-    const meeting = await createMeeting(1, 1);
+    const meeting = await createMeeting(1, 24);
 
     const selectedCandidate = await request(app.getHttpServer())
       .post(`/api/meetings/${meeting.id}/applications`)
@@ -222,7 +222,7 @@ describe("ApplicationsController", () => {
     const adminToken = await registerAndLogin("admin-batch@example.com", "관리자", UserRole.ADMIN);
     const userTokenA = await registerAndLogin("batch-a@example.com", "배치A");
     const userTokenB = await registerAndLogin("batch-b@example.com", "배치B");
-    const meeting = await createMeeting(1, 1);
+    const meeting = await createMeeting(1, 24);
 
     const candidateA = await request(app.getHttpServer())
       .post(`/api/meetings/${meeting.id}/applications`)
@@ -276,18 +276,9 @@ describe("ApplicationsController", () => {
     return loginResponse.body.token;
   }
 
-  async function createMeeting(maxParticipants: number, deadlineOffsetDays: number): Promise<Meeting> {
-    const deadlineDate = new Date();
-    deadlineDate.setDate(deadlineDate.getDate() + deadlineOffsetDays);
-    const announcementDate = new Date();
-    announcementDate.setDate(announcementDate.getDate() + deadlineOffsetDays + 1);
-
-    const formatDate = (d: Date) => {
-      const y = d.getFullYear();
-      const m = String(d.getMonth() + 1).padStart(2, "0");
-      const day = String(d.getDate()).padStart(2, "0");
-      return `${y}-${m}-${day}`;
-    };
+  async function createMeeting(maxParticipants: number, deadlineOffsetHours: number): Promise<Meeting> {
+    const deadline = new Date(Date.now() + deadlineOffsetHours * 60 * 60 * 1000);
+    const announcement = new Date(Date.now() + (deadlineOffsetHours + 24) * 60 * 60 * 1000);
 
     return meetingRepository.save(
       meetingRepository.create({
@@ -295,8 +286,8 @@ describe("ApplicationsController", () => {
         category: MeetingCategory.READING,
         description: "모임 설명",
         maxParticipants,
-        deadlineDate: formatDate(deadlineDate),
-        announcementDate: formatDate(announcementDate),
+        deadline: deadline.toISOString(),
+        announcement: announcement.toISOString(),
       })
     );
   }

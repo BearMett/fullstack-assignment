@@ -17,9 +17,14 @@ export function AdminMeetingCreate() {
     category: "" as string,
     description: "",
     maxParticipants: "",
-    deadlineDate: "",
-    announcementDate: "",
+    deadline: "",
+    announcement: "",
   });
+
+  function kstToUtc(datetimeLocalValue: string): string {
+    const kstDate = new Date(datetimeLocalValue + "+09:00");
+    return kstDate.toISOString();
+  }
 
   const handleSubmit = (e: { preventDefault: () => void }) => {
     e.preventDefault();
@@ -31,8 +36,8 @@ export function AdminMeetingCreate() {
         category: form.category as MeetingCategory,
         description: form.description.trim(),
         maxParticipants: parseInt(form.maxParticipants, 10),
-        deadlineDate: form.deadlineDate,
-        announcementDate: form.announcementDate,
+        deadline: kstToUtc(form.deadline),
+        announcement: kstToUtc(form.announcement),
       },
       {
         onSuccess: () => {
@@ -123,24 +128,24 @@ export function AdminMeetingCreate() {
 
             <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "1rem" }}>
               <label className="auth-field">
-                <span className="auth-label">신청 마감일</span>
+                <span className="auth-label">신청 마감</span>
                 <input
                   className="auth-input"
-                  onChange={(e) => setForm((s) => ({ ...s, deadlineDate: e.target.value }))}
+                  onChange={(e) => setForm((s) => ({ ...s, deadline: e.target.value }))}
                   required
-                  type="date"
-                  value={form.deadlineDate}
+                  type="datetime-local"
+                  value={form.deadline}
                 />
               </label>
 
               <label className="auth-field">
-                <span className="auth-label">결과 발표일</span>
+                <span className="auth-label">결과 발표</span>
                 <input
                   className="auth-input"
-                  onChange={(e) => setForm((s) => ({ ...s, announcementDate: e.target.value }))}
+                  onChange={(e) => setForm((s) => ({ ...s, announcement: e.target.value }))}
                   required
-                  type="date"
-                  value={form.announcementDate}
+                  type="datetime-local"
+                  value={form.announcement}
                 />
               </label>
             </div>
@@ -156,7 +161,6 @@ export function AdminMeetingCreate() {
             >
               <strong>ⓘ 운영 정책 안내</strong>
               <ul style={{ margin: "0.5rem 0 0", paddingLeft: "1.2rem", lineHeight: 1.8 }}>
-                <li>관리자는 발표일 이전에도 선정/탈락 처리가 가능합니다.</li>
                 <li>사용자에게는 발표일 이후에만 결과가 노출됩니다.</li>
                 <li>모집 인원을 초과하여 선정할 수 없습니다.</li>
               </ul>

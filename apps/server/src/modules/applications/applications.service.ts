@@ -29,7 +29,7 @@ export class ApplicationsService {
   async apply(meetingId: number, userId: number, motivation?: string): Promise<ApplicationItemDto> {
     const meeting = await this.requireMeeting(meetingId);
 
-    if (!this.isRecruiting(meeting.deadlineDate)) {
+    if (!this.isRecruiting(meeting.deadline)) {
       throw new BadRequestException(RECRUITING_CLOSED_MESSAGE);
     }
 
@@ -93,7 +93,7 @@ export class ApplicationsService {
     });
 
     return applications.map((application) => {
-      const isResultVisible = this.isAnnouncementPast(application.meeting.announcementDate);
+      const isResultVisible = this.isAnnouncementPast(application.meeting.announcement);
       const displayStatus = isResultVisible ? application.status : ApplicationStatus.PENDING;
 
       return {
@@ -101,7 +101,7 @@ export class ApplicationsService {
         meetingId: application.meetingId,
         meetingTitle: application.meeting.title,
         meetingCategory: application.meeting.category,
-        announcementDate: application.meeting.announcementDate,
+        announcement: application.meeting.announcement,
         status: application.status,
         displayStatus,
         resultMessage: this.toResultMessage(displayStatus, isResultVisible),
@@ -229,14 +229,12 @@ export class ApplicationsService {
     }
   }
 
-  private isRecruiting(deadlineDate: string): boolean {
-    const today = new Date().toISOString().slice(0, 10);
-    return deadlineDate >= today;
+  private isRecruiting(deadline: string): boolean {
+    return new Date(deadline) > new Date();
   }
 
-  private isAnnouncementPast(announcementDate: string): boolean {
-    const today = new Date().toISOString().slice(0, 10);
-    return announcementDate <= today;
+  private isAnnouncementPast(announcement: string): boolean {
+    return new Date(announcement) <= new Date();
   }
 
   private toResultMessage(displayStatus: ApplicationStatus, isResultVisible: boolean): string {

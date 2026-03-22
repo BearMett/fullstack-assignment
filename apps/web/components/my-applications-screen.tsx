@@ -2,15 +2,12 @@
 
 import Link from "next/link";
 import { type MyApplicationItemDto } from "@packages/shared";
-import { getMeetingCategoryIcon, getMeetingCategoryLabel, getRelativeDateLabel } from "@/lib/meeting-presenters";
+import { formatDateTimeFull, getMeetingCategoryIcon, getMeetingCategoryLabel, getRelativeDateLabel } from "@/lib/meeting-presenters";
 import { useMyApplicationsQuery } from "@/lib/react-query/use-meeting-applications";
 import { MeetingCategory } from "@packages/shared";
 
 function ApplicationCard({ application }: { application: MyApplicationItemDto }) {
-  const isBeforeAnnouncement = (() => {
-    const today = new Date().toISOString().slice(0, 10);
-    return application.announcementDate > today;
-  })();
+  const isBeforeAnnouncement = new Date(application.announcement) > new Date();
 
   const category = application.meetingCategory as MeetingCategory;
 
@@ -51,18 +48,12 @@ function ApplicationCard({ application }: { application: MyApplicationItemDto })
         <div style={{ display: "flex", flexWrap: "wrap", gap: "0.75rem", fontSize: "0.85rem", color: "var(--ink-subtle)" }}>
           <span>신청일: {application.createdAt.slice(0, 19).replace("T", " ")}</span>
           <span>
-            · 발표 <strong>{application.announcementDate}</strong>{" "}
+            · 발표 <strong>{formatDateTimeFull(application.announcement)}</strong>{" "}
             <span style={{ background: "var(--neutral-soft)", padding: "0.1rem 0.4rem", borderRadius: "var(--radius-pill)", fontSize: "0.8rem" }}>
-              {getRelativeDateLabel(application.announcementDate)}
+              {getRelativeDateLabel(application.announcement)}
             </span>
           </span>
         </div>
-
-        {isBeforeAnnouncement && (
-          <p style={{ fontSize: "0.85rem", color: "var(--accent-strong)" }}>
-            발표일 이후 결과 확인 가능
-          </p>
-        )}
 
         <span style={{ position: "absolute", right: "1.35rem", top: "50%", transform: "translateY(-50%)", color: "var(--ink-subtle)", fontSize: "1.2rem" }}>›</span>
       </article>

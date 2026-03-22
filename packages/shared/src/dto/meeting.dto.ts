@@ -6,8 +6,8 @@ export interface CreateMeetingDto {
   category: MeetingCategory;
   description: string;
   maxParticipants: number;
-  deadlineDate: string;
-  announcementDate: string;
+  deadline: string;
+  announcement: string;
 }
 
 export interface MeetingListItemDto {
@@ -16,8 +16,8 @@ export interface MeetingListItemDto {
   category: MeetingCategory;
   description: string;
   maxParticipants: number;
-  deadlineDate: string;
-  announcementDate: string;
+  deadline: string;
+  announcement: string;
   isRecruiting: boolean;
   applicantCount: number;
 }

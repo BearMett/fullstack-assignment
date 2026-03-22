@@ -21,8 +21,8 @@ type MeetingSeed = {
   category: MeetingCategory;
   description: string;
   maxParticipants: number;
-  deadlineDate: string;
-  announcementDate: string;
+  deadline: string;
+  announcement: string;
 };
 
 type ApplicationSeed = {
@@ -47,8 +47,8 @@ const meetingSeeds: MeetingSeed[] = [
     category: MeetingCategory.READING,
     description: '손원평 작가의 "아몬드"를 읽고 감정과 공감에 대해 이야기 나눠보았습니다.',
     maxParticipants: 8,
-    deadlineDate: "2026-03-15",
-    announcementDate: "2026-03-17",
+    deadline: "2026-03-15T09:00:00.000Z",
+    announcement: "2026-03-17T03:00:00.000Z",
   },
   {
     title: "영어 스피킹 클럽 — Free Talk",
@@ -56,8 +56,8 @@ const meetingSeeds: MeetingSeed[] = [
     description:
       "매주 수요일 저녁, 편안한 분위기에서 영어로 대화해요. 주제는 매주 달라지고, 레벨 상관없이 누구나 참여 가능합니다. 실수해도 괜찮아요!",
     maxParticipants: 10,
-    deadlineDate: "2026-03-18",
-    announcementDate: "2026-03-20",
+    deadline: "2026-03-18T09:00:00.000Z",
+    announcement: "2026-03-20T03:00:00.000Z",
   },
   {
     title: "주말 러닝 크루 4기",
@@ -65,8 +65,8 @@ const meetingSeeds: MeetingSeed[] = [
     description:
       "매주 토요일 아침 7시, 수원 광교호수공원에서 함께 달려요! 초보자도 환영합니다. 5km~10km 코스로 페이스에 맞춰 함께 뛰어요.",
     maxParticipants: 15,
-    deadlineDate: "2026-03-20",
-    announcementDate: "2026-03-24",
+    deadline: "2026-03-20T12:00:00.000Z",
+    announcement: "2026-03-24T03:00:00.000Z",
   },
   {
     title: "요가 & 명상 소모임",
@@ -74,8 +74,8 @@ const meetingSeeds: MeetingSeed[] = [
     description:
       "주 2회 저녁, 간단한 요가와 명상으로 하루를 마무리하는 소모임입니다. 매번 잊으면 OK!",
     maxParticipants: 2,
-    deadlineDate: "2026-03-28",
-    announcementDate: "2026-03-31",
+    deadline: "2026-03-28T09:00:00.000Z",
+    announcement: "2026-03-31T03:00:00.000Z",
   },
   {
     title: "4월 독서 모임: 달러구트 꿈 백화점",
@@ -83,8 +83,8 @@ const meetingSeeds: MeetingSeed[] = [
     description:
       '이미래 작가의 베스트 셀러 "달러구트 꿈 백화점"을 함께 읽고 이야기를 나눕니다. 따뜻하고 환상적인 이야기 속에서 삶의 의미를 돌아보는 시간이 될 거예요.',
     maxParticipants: 8,
-    deadlineDate: "2026-04-05",
-    announcementDate: "2026-04-08",
+    deadline: "2026-04-05T09:00:00.000Z",
+    announcement: "2026-04-08T03:00:00.000Z",
   },
   {
     title: "매일 기록 챌린지 — 30일 일기",
@@ -92,8 +92,8 @@ const meetingSeeds: MeetingSeed[] = [
     description:
       "하루 10분, 매일 기록하는 습관을 만들어보아요. 짧은 일기, 감사 노트, 오늘의 한줄 등 형식은 자유! 서로의 기록을 응원하는 따뜻한 챌린지입니다.",
     maxParticipants: 20,
-    deadlineDate: "2026-04-12",
-    announcementDate: "2026-04-15",
+    deadline: "2026-04-12T09:00:00.000Z",
+    announcement: "2026-04-15T03:00:00.000Z",
   },
 ];
 

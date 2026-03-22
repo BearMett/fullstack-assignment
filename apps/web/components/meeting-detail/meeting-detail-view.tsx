@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { extractApiErrorMessage } from "@/lib/api-client";
 import {
+  formatDateTimeFull,
   getMeetingStatusBadges,
   getRelativeDateLabel,
 } from "@/lib/meeting-presenters";
@@ -152,7 +153,7 @@ export function MeetingDetailView({ meetingId }: MeetingDetailViewProps) {
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
               <span>
-                신청 마감 <strong>{meeting.deadlineDate}</strong>{" "}
+                신청 마감 <strong>{formatDateTimeFull(meeting.deadline)}</strong>{" "}
                 <span
                   style={{
                     background: "var(--neutral-soft)",
@@ -161,13 +162,13 @@ export function MeetingDetailView({ meetingId }: MeetingDetailViewProps) {
                     fontSize: "0.8rem",
                   }}
                 >
-                  {getRelativeDateLabel(meeting.deadlineDate)}
+                  {getRelativeDateLabel(meeting.deadline)}
                 </span>
               </span>
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
               <span>
-                결과 발표 <strong>{meeting.announcementDate}</strong>{" "}
+                결과 발표 <strong>{formatDateTimeFull(meeting.announcement)}</strong>{" "}
                 <span
                   style={{
                     background: "var(--neutral-soft)",
@@ -176,7 +177,7 @@ export function MeetingDetailView({ meetingId }: MeetingDetailViewProps) {
                     fontSize: "0.8rem",
                   }}
                 >
-                  {getRelativeDateLabel(meeting.announcementDate)}
+                  {getRelativeDateLabel(meeting.announcement)}
                 </span>
               </span>
             </div>

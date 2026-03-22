@@ -15,36 +15,61 @@ const meetingCategoryIcons: Record<MeetingCategory, string> = {
   [MeetingCategory.ENGLISH]: "🌐",
 };
 
-const announcementDateFormatter = new Intl.DateTimeFormat("ko-KR", {
-  year: "numeric",
+const DISPLAY_TIMEZONE = "Asia/Seoul";
+
+const fullDateTimeFormatter = new Intl.DateTimeFormat("ko-KR", {
+  timeZone: DISPLAY_TIMEZONE,
   month: "long",
   day: "numeric",
+  weekday: "short",
+  hour: "numeric",
+  minute: "2-digit",
+  hour12: true,
 });
 
-export function formatAnnouncementDate(value: string): string {
-  const date = new Date(`${value}T00:00:00`);
+const shortDateTimeFormatter = new Intl.DateTimeFormat("ko-KR", {
+  timeZone: DISPLAY_TIMEZONE,
+  month: "numeric",
+  day: "numeric",
+  hour: "numeric",
+  minute: "2-digit",
+  hour12: true,
+});
 
-  if (Number.isNaN(date.getTime())) {
-    return value;
-  }
-
-  return announcementDateFormatter.format(date);
+function replaceNoonMidnight(formatted: string): string {
+  return formatted
+    .replace(/오전 12:00/, "자정")
+    .replace(/오후 12:00/, "정오");
 }
 
-export function getRelativeDateLabel(dateStr: string): string {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const target = new Date(`${dateStr}T00:00:00`);
-  target.setHours(0, 0, 0, 0);
+export function formatDateTimeFull(isoString: string): string {
+  const date = new Date(isoString);
+  if (Number.isNaN(date.getTime())) return isoString;
+  return replaceNoonMidnight(fullDateTimeFormatter.format(date));
+}
 
-  const diffMs = target.getTime() - today.getTime();
+export function formatDateTimeShort(isoString: string): string {
+  const date = new Date(isoString);
+  if (Number.isNaN(date.getTime())) return isoString;
+  return replaceNoonMidnight(shortDateTimeFormatter.format(date));
+}
+
+export function getRelativeDateLabel(isoString: string): string {
+  const now = new Date();
+  const target = new Date(isoString);
+
+  if (Number.isNaN(target.getTime())) return "";
+
+  const diffMs = target.getTime() - now.getTime();
+
+  if (diffMs <= 0) return "";
+
+  const diffHours = Math.round(diffMs / (1000 * 60 * 60));
   const diffDays = Math.round(diffMs / (1000 * 60 * 60 * 24));
 
-  if (diffDays === 0) return "오늘";
-  if (diffDays === 1) return "내일";
-  if (diffDays === -1) return "어제";
-  if (diffDays > 1) return `D-${diffDays}`;
-  return `${Math.abs(diffDays)}일 전`;
+  if (diffHours < 1) return "곧";
+  if (diffHours < 24) return `${diffHours}시간 후`;
+  return `D-${diffDays}`;
 }
 
 export function getRecruitingStateCopy(isRecruiting: boolean): {
@@ -107,7 +132,7 @@ type MeetingBadge = {
 export function getMeetingStatusBadges(meeting: {
   category: MeetingCategory;
   isRecruiting: boolean;
-  announcementDate: string;
+  announcement: string;
 }, options?: { isAdmin?: boolean }): MeetingBadge[] {
   const badges: MeetingBadge[] = [];
 
@@ -116,8 +141,7 @@ export function getMeetingStatusBadges(meeting: {
     tone: "category",
   });
 
-  const today = new Date().toISOString().slice(0, 10);
-  const isAnnouncementPast = meeting.announcementDate <= today;
+  const isAnnouncementPast = new Date(meeting.announcement) <= new Date();
 
   if (isAnnouncementPast) {
     badges.push({ label: "발표 완료", tone: "is-closed" });

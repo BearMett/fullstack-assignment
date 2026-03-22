@@ -41,7 +41,7 @@ export interface MyApplicationItemDto {
   meetingId: number;
   meetingTitle: string;
   meetingCategory: string;
-  announcementDate: string;
+  announcement: string;
   status: ApplicationStatus;
   displayStatus: ApplicationStatus;
   resultMessage?: string;

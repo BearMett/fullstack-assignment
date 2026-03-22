@@ -12,10 +12,8 @@ import { middleware } from "../app.middleware";
 import { AuthModule } from "../auth/auth.module";
 import { MeetingsModule } from "./meetings.module";
 
-const dateOffset = (days: number): string => {
-  const date = new Date();
-  date.setDate(date.getDate() + days);
-  return date.toISOString().slice(0, 10);
+const datetimeOffset = (hours: number): string => {
+  return new Date(Date.now() + hours * 60 * 60 * 1000).toISOString();
 };
 
 describe("MeetingsController (core)", () => {
@@ -90,8 +88,8 @@ describe("MeetingsController (core)", () => {
       category: MeetingCategory.READING,
       description: "관리자만 생성",
       maxParticipants: 5,
-      deadlineDate: dateOffset(2),
-      announcementDate: dateOffset(3),
+      deadline: datetimeOffset(48),
+      announcement: datetimeOffset(72),
     };
 
     const unauthorizedResponse = await request(app.getHttpServer()).post("/api/meetings").send(payload);
@@ -108,8 +106,8 @@ describe("MeetingsController (core)", () => {
 
   it("creates meeting for admin with valid payload", async () => {
     const { token: adminToken } = await createUserSession(UserRole.ADMIN);
-    const deadlineDate = dateOffset(2);
-    const announcementDate = dateOffset(3);
+    const deadline = datetimeOffset(48);
+    const announcement = datetimeOffset(72);
 
     const response = await request(app.getHttpServer())
       .post("/api/meetings")
@@ -119,8 +117,8 @@ describe("MeetingsController (core)", () => {
         category: MeetingCategory.READING,
         description: "정상 생성",
         maxParticipants: 6,
-        deadlineDate,
-        announcementDate,
+        deadline,
+        announcement,
         });
 
     expect(response.status).toBe(201);
@@ -130,8 +128,8 @@ describe("MeetingsController (core)", () => {
         category: MeetingCategory.READING,
         description: "정상 생성",
         maxParticipants: 6,
-        deadlineDate,
-        announcementDate,
+        deadline,
+        announcement,
         })
     );
   });
@@ -147,8 +145,8 @@ describe("MeetingsController (core)", () => {
         category: "취미",
         description: "검증 실패",
         maxParticipants: 5,
-        deadlineDate: dateOffset(2),
-        announcementDate: dateOffset(3),
+        deadline: datetimeOffset(48),
+        announcement: datetimeOffset(72),
         });
 
     expect(invalidCategoryResponse.status).toBe(400);
@@ -161,8 +159,8 @@ describe("MeetingsController (core)", () => {
         category: MeetingCategory.EXERCISE,
         description: "검증 실패",
         maxParticipants: 3,
-        deadlineDate: dateOffset(-1),
-        announcementDate: dateOffset(-1),
+        deadline: datetimeOffset(-24),
+        announcement: datetimeOffset(-24),
         });
 
     expect(invalidAnnouncementDateResponse.status).toBe(400);
@@ -175,8 +173,8 @@ describe("MeetingsController (core)", () => {
         category: MeetingCategory.ENGLISH,
         description: "검증 실패",
         maxParticipants: 0,
-        deadlineDate: dateOffset(2),
-        announcementDate: dateOffset(3),
+        deadline: datetimeOffset(48),
+        announcement: datetimeOffset(72),
         });
 
     expect(invalidMaxParticipantsResponse.status).toBe(400);
@@ -191,8 +189,8 @@ describe("MeetingsController (core)", () => {
       category: MeetingCategory.READING,
       description: "모집중",
       maxParticipants: 2,
-      deadlineDate: dateOffset(2),
-      announcementDate: dateOffset(3),
+      deadline: datetimeOffset(48),
+      announcement: datetimeOffset(72),
     });
 
     const closedMeeting = await meetingRepository.save({
@@ -200,8 +198,8 @@ describe("MeetingsController (core)", () => {
       category: MeetingCategory.WRITING,
       description: "마감",
       maxParticipants: 2,
-      deadlineDate: dateOffset(-3),
-      announcementDate: dateOffset(-2),
+      deadline: datetimeOffset(-72),
+      announcement: datetimeOffset(-48),
     });
 
     await applicationRepository.save({
@@ -237,7 +235,7 @@ describe("MeetingsController (core)", () => {
     ).toBe(false);
 
     const adminListResponse = await request(app.getHttpServer())
-      .get("/api/meetings")
+      .get("/api/meetings?includeClosed=true")
       .set("Authorization", `Bearer ${adminToken}`);
 
     expect(adminListResponse.status).toBe(200);
@@ -257,8 +255,8 @@ describe("MeetingsController (core)", () => {
       category: MeetingCategory.EXERCISE,
       description: "인증 필요",
       maxParticipants: 5,
-      deadlineDate: dateOffset(1),
-      announcementDate: dateOffset(2),
+      deadline: datetimeOffset(24),
+      announcement: datetimeOffset(48),
     });
 
     const listResponse = await request(app.getHttpServer()).get("/api/meetings");
@@ -276,8 +274,8 @@ describe("MeetingsController (core)", () => {
       category: MeetingCategory.ENGLISH,
       description: "결과 마스킹",
       maxParticipants: 7,
-      deadlineDate: dateOffset(2),
-      announcementDate: dateOffset(3),
+      deadline: datetimeOffset(48),
+      announcement: datetimeOffset(72),
     });
 
     const application = await applicationRepository.save({
@@ -315,8 +313,8 @@ describe("MeetingsController (core)", () => {
       category: MeetingCategory.READING,
       description: "결과 공개",
       maxParticipants: 5,
-      deadlineDate: dateOffset(-1),
-      announcementDate: dateOffset(0),
+      deadline: datetimeOffset(-24),
+      announcement: datetimeOffset(0),
     });
 
     const application = await applicationRepository.save({
@@ -351,8 +349,8 @@ describe("MeetingsController (core)", () => {
       category: MeetingCategory.EXERCISE,
       description: "미신청 상태",
       maxParticipants: 8,
-      deadlineDate: dateOffset(1),
-      announcementDate: dateOffset(2),
+      deadline: datetimeOffset(24),
+      announcement: datetimeOffset(48),
     });
 
     const response = await request(app.getHttpServer())
@@ -375,8 +373,8 @@ describe("MeetingsController (core)", () => {
       category: MeetingCategory.WRITING,
       description: "관리자 집계",
       maxParticipants: 2,
-      deadlineDate: dateOffset(2),
-      announcementDate: dateOffset(3),
+      deadline: datetimeOffset(48),
+      announcement: datetimeOffset(72),
     });
 
     await applicationRepository.save([

@@ -13,8 +13,8 @@ export interface MeetingType {
   category: MeetingCategory;
   description: string;
   maxParticipants: number;
-  deadlineDate: string;
-  announcementDate: string;
+  deadline: string;
+  announcement: string;
   createdAt: string;
   updatedAt: string;
 }
