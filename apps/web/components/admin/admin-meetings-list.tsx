@@ -95,7 +95,7 @@ export function AdminMeetingsList() {
                       {getMeetingCategoryIcon(category)} {getMeetingCategoryLabel(category)}
                     </span>
                   </span>
-                  <span>{meeting.applicantCount}/{meeting.maxParticipants} <span style={{ color: "var(--ink-subtle)", fontSize: "0.8rem" }}>({meeting.applicantCount}명 신청)</span></span>
+                  <span>{meeting.maxParticipants}명 <span style={{ color: "var(--ink-subtle)", fontSize: "0.8rem" }}>({meeting.applicantCount}명 신청)</span></span>
                   <span>{meeting.deadlineDate} <span style={{ background: "var(--neutral-soft)", padding: "0.1rem 0.35rem", borderRadius: "var(--radius-pill)", fontSize: "0.75rem" }}>{getRelativeDateLabel(meeting.deadlineDate)}</span></span>
                   <span>{meeting.announcementDate} <span style={{ background: "var(--neutral-soft)", padding: "0.1rem 0.35rem", borderRadius: "var(--radius-pill)", fontSize: "0.75rem" }}>{getRelativeDateLabel(meeting.announcementDate)}</span></span>
                   <span style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>

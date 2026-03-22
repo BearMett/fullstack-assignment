@@ -64,7 +64,7 @@ function MeetingCard({ meeting }: { meeting: MeetingListItemDto }) {
             paddingTop: "0.75rem",
           }}
         >
-          <span>모집 {meeting.applicantCount}/{meeting.maxParticipants}명</span>
+          <span>정원 {meeting.maxParticipants}명 · 신청 {meeting.applicantCount}명</span>
           <span>마감 {meeting.deadlineDate} <span style={{ background: "var(--neutral-soft)", padding: "0.1rem 0.4rem", borderRadius: "var(--radius-pill)", fontSize: "0.8rem" }}>{getRelativeDateLabel(meeting.deadlineDate)}</span></span>
           <span>발표 {meeting.announcementDate} <span style={{ background: "var(--neutral-soft)", padding: "0.1rem 0.4rem", borderRadius: "var(--radius-pill)", fontSize: "0.8rem" }}>{getRelativeDateLabel(meeting.announcementDate)}</span></span>
         </div>
