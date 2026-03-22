@@ -148,7 +148,6 @@ export function MeetingDetailView({ meetingId }: MeetingDetailViewProps) {
             }}
           >
             <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-              <span>👥</span>
               <span>모집 <strong>{meeting.applicantCount}/{meeting.maxParticipants}명</strong></span>
               <div
                 style={{
@@ -171,7 +170,6 @@ export function MeetingDetailView({ meetingId }: MeetingDetailViewProps) {
               </div>
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-              <span>📅</span>
               <span>
                 신청 마감 <strong>{meeting.deadlineDate}</strong>{" "}
                 <span
@@ -187,7 +185,6 @@ export function MeetingDetailView({ meetingId }: MeetingDetailViewProps) {
               </span>
             </div>
             <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-              <span>🕐</span>
               <span>
                 결과 발표 <strong>{meeting.announcementDate}</strong>{" "}
                 <span

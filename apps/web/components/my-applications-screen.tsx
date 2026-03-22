@@ -27,7 +27,7 @@ function ApplicationCard({ application }: { application: MyApplicationItemDto })
 
           {isBeforeAnnouncement ? (
             <span className="meeting-state-badge is-closed">
-              🕐 결과 발표 전
+              결과 발표 전
             </span>
           ) : application.displayStatus === "SELECTED" ? (
             <span className="meeting-state-badge is-open">
@@ -51,7 +51,7 @@ function ApplicationCard({ application }: { application: MyApplicationItemDto })
         <div style={{ display: "flex", flexWrap: "wrap", gap: "0.75rem", fontSize: "0.85rem", color: "var(--ink-subtle)" }}>
           <span>신청일: {application.createdAt.slice(0, 19).replace("T", " ")}</span>
           <span>
-            · 🕐 발표 <strong>{application.announcementDate}</strong>{" "}
+            · 발표 <strong>{application.announcementDate}</strong>{" "}
             <span style={{ background: "var(--neutral-soft)", padding: "0.1rem 0.4rem", borderRadius: "var(--radius-pill)", fontSize: "0.8rem" }}>
               {getRelativeDateLabel(application.announcementDate)}
             </span>

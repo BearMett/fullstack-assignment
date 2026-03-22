@@ -191,8 +191,8 @@ export function AdminMeetingDetail({ meetingId }: { meetingId: number }) {
           </div>
 
           <div style={{ display: "flex", gap: "1.5rem", fontSize: "0.88rem", color: "var(--ink-subtle)" }}>
-            <span>📅 마감 {meeting.deadlineDate} <span style={{ background: "var(--neutral-soft)", padding: "0.1rem 0.35rem", borderRadius: "var(--radius-pill)", fontSize: "0.75rem" }}>{getRelativeDateLabel(meeting.deadlineDate)}</span></span>
-            <span>🕐 발표 {meeting.announcementDate} <span style={{ background: "var(--neutral-soft)", padding: "0.1rem 0.35rem", borderRadius: "var(--radius-pill)", fontSize: "0.75rem" }}>{getRelativeDateLabel(meeting.announcementDate)}</span></span>
+            <span>마감 {meeting.deadlineDate} <span style={{ background: "var(--neutral-soft)", padding: "0.1rem 0.35rem", borderRadius: "var(--radius-pill)", fontSize: "0.75rem" }}>{getRelativeDateLabel(meeting.deadlineDate)}</span></span>
+            <span>발표 {meeting.announcementDate} <span style={{ background: "var(--neutral-soft)", padding: "0.1rem 0.35rem", borderRadius: "var(--radius-pill)", fontSize: "0.75rem" }}>{getRelativeDateLabel(meeting.announcementDate)}</span></span>
           </div>
 
           {isAnnouncementPast && (
@@ -211,7 +211,7 @@ export function AdminMeetingDetail({ meetingId }: { meetingId: number }) {
         <div style={{ marginTop: "1.5rem" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem", flexWrap: "wrap", gap: "0.75rem" }}>
             <h2 style={{ fontFamily: "var(--font-display), serif", fontSize: "1.15rem", fontWeight: 700 }}>
-              👥 신청자 목록 ({applicants.length}명)
+              신청자 목록 ({applicants.length}명)
             </h2>
             <div style={{ display: "flex", gap: "0.35rem" }}>
               {(["ALL", ApplicationStatus.PENDING, ApplicationStatus.SELECTED, ApplicationStatus.REJECTED] as StatusFilter[]).map((f) => (

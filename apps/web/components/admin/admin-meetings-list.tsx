@@ -62,7 +62,7 @@ export function AdminMeetingsList() {
 
         {!meetingsQuery.isLoading && filteredMeetings.length > 0 ? (
           <div style={{ border: "1px solid var(--line-soft)", borderRadius: "var(--radius-card)", background: "var(--surface-card)", overflow: "hidden" }}>
-            <div style={{ display: "grid", gridTemplateColumns: "2fr 0.7fr 1fr 1fr 0.8fr 0.3fr", padding: "0.75rem 1.25rem", borderBottom: "1px solid var(--line-soft)", fontSize: "0.8rem", fontWeight: 700, color: "var(--ink-subtle)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
+            <div style={{ display: "grid", gridTemplateColumns: "2fr 0.7fr 1fr 1fr 1fr 0.5fr", padding: "0.75rem 1.25rem", borderBottom: "1px solid var(--line-soft)", fontSize: "0.8rem", fontWeight: 700, color: "var(--ink-subtle)", textTransform: "uppercase", letterSpacing: "0.05em" }}>
               <span>모임</span>
               <span>종류</span>
               <span>인원</span>
@@ -79,7 +79,7 @@ export function AdminMeetingsList() {
                   href={`/admin/meetings/${meeting.id}`}
                   style={{
                     display: "grid",
-                    gridTemplateColumns: "2fr 0.7fr 1fr 1fr 0.8fr 0.3fr",
+                    gridTemplateColumns: "2fr 0.7fr 1fr 1fr 1fr 0.5fr",
                     padding: "0.85rem 1.25rem",
                     borderBottom: "1px solid var(--line-soft)",
                     textDecoration: "none",
@@ -96,10 +96,10 @@ export function AdminMeetingsList() {
                     </span>
                   </span>
                   <span>{meeting.applicantCount}/{meeting.maxParticipants} <span style={{ color: "var(--ink-subtle)", fontSize: "0.8rem" }}>({meeting.applicantCount}명 신청)</span></span>
-                  <span>📅 {meeting.deadlineDate} <span style={{ background: "var(--neutral-soft)", padding: "0.1rem 0.35rem", borderRadius: "var(--radius-pill)", fontSize: "0.75rem" }}>{getRelativeDateLabel(meeting.deadlineDate)}</span></span>
-                  <span>🕐 {meeting.announcementDate} <span style={{ background: "var(--neutral-soft)", padding: "0.1rem 0.35rem", borderRadius: "var(--radius-pill)", fontSize: "0.75rem" }}>{getRelativeDateLabel(meeting.announcementDate)}</span></span>
+                  <span>{meeting.deadlineDate} <span style={{ background: "var(--neutral-soft)", padding: "0.1rem 0.35rem", borderRadius: "var(--radius-pill)", fontSize: "0.75rem" }}>{getRelativeDateLabel(meeting.deadlineDate)}</span></span>
+                  <span>{meeting.announcementDate} <span style={{ background: "var(--neutral-soft)", padding: "0.1rem 0.35rem", borderRadius: "var(--radius-pill)", fontSize: "0.75rem" }}>{getRelativeDateLabel(meeting.announcementDate)}</span></span>
                   <span style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                    <span className={`meeting-state-badge ${status.tone}`} style={{ fontSize: "0.78rem", minHeight: "1.8rem", padding: "0 0.6rem" }}>{status.label}</span>
+                    <span className={`meeting-state-badge ${status.tone}`} style={{ fontSize: "0.78rem", minHeight: "1.8rem", padding: "0 0.6rem", whiteSpace: "nowrap" }}>{status.label}</span>
                     <span style={{ color: "var(--ink-subtle)" }}>›</span>
                   </span>
                 </Link>
