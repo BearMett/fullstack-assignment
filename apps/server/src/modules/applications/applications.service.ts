@@ -102,7 +102,7 @@ export class ApplicationsService {
         meetingTitle: application.meeting.title,
         meetingCategory: application.meeting.category,
         announcement: application.meeting.announcement,
-        status: application.status,
+        status: displayStatus,
         displayStatus,
         resultMessage: this.toResultMessage(displayStatus, isResultVisible),
         createdAt: application.createdAt.toISOString(),
