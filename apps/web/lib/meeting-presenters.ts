@@ -133,13 +133,17 @@ export function getMeetingStatusBadges(meeting: {
   category: MeetingCategory;
   isRecruiting: boolean;
   announcement: string;
-}, options?: { isAdmin?: boolean }): MeetingBadge[] {
+}): MeetingBadge[] {
   const badges: MeetingBadge[] = [];
 
   badges.push({
     label: `${getMeetingCategoryIcon(meeting.category)} ${getMeetingCategoryLabel(meeting.category)}`,
     tone: "category",
   });
+
+  if (meeting.isRecruiting) {
+    badges.push({ label: "모집 중", tone: "is-open" });
+  }
 
   const isAnnouncementPast = new Date(meeting.announcement) <= new Date();
 

@@ -3,6 +3,7 @@ import { BadRequestException, ConflictException, ForbiddenException, Injectable,
 import { InjectRepository } from "@nestjs/typeorm";
 import { EntityManager, In, Repository } from "typeorm";
 import { Application, Meeting } from "../../entity";
+import { isAnnouncementPast, isRecruiting, toResultMessage } from "../meeting-utils";
 import {
   APPLICATION_NOT_FOUND_MESSAGE,
   CAPACITY_EXCEEDED_MESSAGE,
@@ -29,7 +30,7 @@ export class ApplicationsService {
   async apply(meetingId: number, userId: number, motivation?: string): Promise<ApplicationItemDto> {
     const meeting = await this.requireMeeting(meetingId);
 
-    if (!this.isRecruiting(meeting.deadline)) {
+    if (!isRecruiting(meeting.deadline)) {
       throw new BadRequestException(RECRUITING_CLOSED_MESSAGE);
     }
 
@@ -93,7 +94,7 @@ export class ApplicationsService {
     });
 
     return applications.map((application) => {
-      const isResultVisible = this.isAnnouncementPast(application.meeting.announcement);
+      const isResultVisible = isAnnouncementPast(application.meeting.announcement);
       const displayStatus = isResultVisible ? application.status : ApplicationStatus.PENDING;
 
       return {
@@ -104,7 +105,7 @@ export class ApplicationsService {
         announcement: application.meeting.announcement,
         status: displayStatus,
         displayStatus,
-        resultMessage: this.toResultMessage(displayStatus, isResultVisible),
+        resultMessage: toResultMessage(displayStatus, isResultVisible),
         createdAt: application.createdAt.toISOString(),
       };
     });
@@ -227,30 +228,6 @@ export class ApplicationsService {
     if (nextSelectedCount > meeting.maxParticipants) {
       throw new BadRequestException(CAPACITY_EXCEEDED_MESSAGE);
     }
-  }
-
-  private isRecruiting(deadline: string): boolean {
-    return new Date(deadline) > new Date();
-  }
-
-  private isAnnouncementPast(announcement: string): boolean {
-    return new Date(announcement) <= new Date();
-  }
-
-  private toResultMessage(displayStatus: ApplicationStatus, isResultVisible: boolean): string {
-    if (!isResultVisible) {
-      return "발표일에 결과가 공개됩니다";
-    }
-
-    if (displayStatus === ApplicationStatus.SELECTED) {
-      return "축하합니다! 모임에 선정되었어요";
-    }
-
-    if (displayStatus === ApplicationStatus.REJECTED) {
-      return "아쉽게도 이번 모임에 함께하지 못했어요";
-    }
-
-    return "결과 대기중";
   }
 
   private async requireMeeting(meetingId: number): Promise<Meeting> {

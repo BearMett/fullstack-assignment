@@ -129,7 +129,7 @@ export function AdminMeetingDetail({ meetingId }: { meetingId: number }) {
     );
   }
 
-  const badges = getMeetingStatusBadges(meeting, { isAdmin: true });
+  const badges = getMeetingStatusBadges(meeting);
   const isAnnouncementPast = new Date(meeting.announcement) <= new Date();
 
   return (

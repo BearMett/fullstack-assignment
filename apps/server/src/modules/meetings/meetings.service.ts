@@ -3,6 +3,7 @@ import { Injectable, NotFoundException } from "@nestjs/common";
 import { InjectRepository } from "@nestjs/typeorm";
 import { Repository } from "typeorm";
 import { Application, Meeting } from "../../entity";
+import { isAnnouncementPast, isRecruiting, toResultMessage } from "../meeting-utils";
 import { CreateMeetingRequestDto } from "./dto/create-meeting-request.dto";
 
 @Injectable()
@@ -24,23 +25,20 @@ export class MeetingsService {
   async list(includeClosed: boolean): Promise<MeetingListItemDto[]> {
     const meetings = await this.meetingRepository.find({ order: { id: "DESC" } });
 
-    const rows = await Promise.all(
-      meetings.map(async (meeting) => {
-        const applicantCount = await this.applicationRepository.count({ where: { meetingId: meeting.id } });
+    const meetingIds = meetings.map((m) => m.id);
+    const countMap = await this.countApplicantsByMeetingIds(meetingIds);
 
-        return {
-          id: meeting.id,
-          title: meeting.title,
-          category: meeting.category,
-          description: meeting.description,
-          maxParticipants: meeting.maxParticipants,
-          deadline: meeting.deadline,
-          announcement: meeting.announcement,
-          isRecruiting: this.isRecruiting(meeting.deadline),
-          applicantCount,
-        } satisfies MeetingListItemDto;
-      })
-    );
+    const rows = meetings.map((meeting) => ({
+      id: meeting.id,
+      title: meeting.title,
+      category: meeting.category,
+      description: meeting.description,
+      maxParticipants: meeting.maxParticipants,
+      deadline: meeting.deadline,
+      announcement: meeting.announcement,
+      isRecruiting: isRecruiting(meeting.deadline),
+      applicantCount: countMap.get(meeting.id) ?? 0,
+    }) satisfies MeetingListItemDto);
 
     if (includeClosed) {
       return rows;
@@ -56,7 +54,7 @@ export class MeetingsService {
       throw new NotFoundException("모임을 찾을 수 없습니다");
     }
 
-    const isRecruiting = this.isRecruiting(meeting.deadline);
+    const recruiting = isRecruiting(meeting.deadline);
     const applicantCount = await this.applicationRepository.count({ where: { meetingId: meeting.id } });
 
     if (role === UserRole.ADMIN) {
@@ -68,7 +66,7 @@ export class MeetingsService {
 
       return {
         ...this.toMeetingType(meeting),
-        isRecruiting,
+        isRecruiting: recruiting,
         applicantCount,
         selectedCount,
         rejectedCount,
@@ -80,16 +78,30 @@ export class MeetingsService {
 
     return {
       ...this.toMeetingType(meeting),
-      isRecruiting,
+      isRecruiting: recruiting,
       applicantCount,
-      canApply: isRecruiting && !myApplication,
+      canApply: recruiting && !myApplication,
       canCancel: Boolean(myApplication && myApplication.status === ApplicationStatus.PENDING),
       myApplication: myApplication ? this.toApplicationResult(myApplication, meeting.announcement) : null,
     };
   }
 
-  private isRecruiting(deadline: string): boolean {
-    return new Date(deadline) > new Date();
+  private async countApplicantsByMeetingIds(meetingIds: number[]): Promise<Map<number, number>> {
+    if (meetingIds.length === 0) return new Map();
+
+    const counts = await this.applicationRepository
+      .createQueryBuilder("application")
+      .select("application.meetingId", "meetingId")
+      .addSelect("COUNT(*)", "count")
+      .where("application.meetingId IN (:...meetingIds)", { meetingIds })
+      .groupBy("application.meetingId")
+      .getRawMany<{ meetingId: number; count: string }>();
+
+    const map = new Map<number, number>();
+    for (const row of counts) {
+      map.set(row.meetingId, parseInt(row.count, 10));
+    }
+    return map;
   }
 
   private toMeetingType(meeting: Meeting): MeetingType {
@@ -106,12 +118,8 @@ export class MeetingsService {
     };
   }
 
-  private isAnnouncementPast(announcement: string): boolean {
-    return new Date(announcement) <= new Date();
-  }
-
   private toApplicationResult(application: Application, announcement: string): ApplicationResultType {
-    const isResultVisible = this.isAnnouncementPast(announcement);
+    const isResultVisible = isAnnouncementPast(announcement);
     const displayStatus = isResultVisible ? application.status : ApplicationStatus.PENDING;
 
     return {
@@ -120,25 +128,9 @@ export class MeetingsService {
       meetingId: application.meetingId,
       status: displayStatus,
       displayStatus,
-      resultMessage: this.toResultMessage(displayStatus, isResultVisible),
+      resultMessage: toResultMessage(displayStatus, isResultVisible),
       createdAt: application.createdAt.toISOString(),
       updatedAt: application.updatedAt.toISOString(),
     };
-  }
-
-  private toResultMessage(displayStatus: ApplicationStatus, isResultVisible: boolean): string {
-    if (!isResultVisible) {
-      return "발표일에 결과가 공개됩니다";
-    }
-
-    if (displayStatus === ApplicationStatus.SELECTED) {
-      return "축하합니다! 모임에 선정되었어요";
-    }
-
-    if (displayStatus === ApplicationStatus.REJECTED) {
-      return "아쉽게도 이번 모임에 함께하지 못했어요";
-    }
-
-    return "결과 대기중";
   }
 }
