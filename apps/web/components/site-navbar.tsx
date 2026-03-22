@@ -29,10 +29,6 @@ export function SiteNavbar() {
     router.replace("/login");
   };
 
-  if (!hasHydrated || !session) {
-    return null;
-  }
-
   const isMeetingsPath = pathname.startsWith("/meetings");
   const isMyApplicationsPath = pathname.startsWith("/my-applications");
 
@@ -64,24 +60,23 @@ export function SiteNavbar() {
           </span>
         </Link>
 
-        <div className="nav-actions">
+        <div className="nav-actions" style={{ visibility: hasHydrated && session ? "visible" : "hidden" }}>
           <Link
             className={`nav-link ${isMeetingsPath ? "is-active" : ""}`}
             href="/meetings"
             style={{ gap: "0.35rem" }}
           >
-            🏠 모임 목록
+            모임 목록
           </Link>
           <Link
             className={`nav-link ${isMyApplicationsPath ? "is-active" : ""}`}
             href="/my-applications"
             style={{ gap: "0.35rem" }}
           >
-            📋 내 신청
+            내 신청
           </Link>
           <span className="nav-chip">
-            <span>👤</span>
-            <strong>{session.user.name}</strong>
+            <strong>{session?.user.name ?? "\u00A0"}</strong>
           </span>
           <button
             className="ghost-button"
@@ -89,7 +84,7 @@ export function SiteNavbar() {
             type="button"
             style={{ minHeight: "2.5rem", padding: "0 0.75rem" }}
           >
-            ⏎
+            사용자 전환
           </button>
         </div>
       </div>

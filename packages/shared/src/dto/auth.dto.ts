@@ -17,7 +17,7 @@ export interface SimpleLoginDto {
 
 export interface SimpleRegisterDto {
   name: string;
-  phone: string;
+  phone?: string;
 }
 
 export interface AuthUserDto {

@@ -1,16 +1,11 @@
 "use client";
 
-import { type UserListItemDto } from "@packages/shared";
+import { UserRole, type UserListItemDto } from "@packages/shared";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { extractApiErrorMessage } from "@/lib/api-client";
 import { useSimpleLoginMutation, useSimpleRegisterMutation, useUsersQuery } from "@/lib/react-query/use-auth";
 import { GuestOnly } from "@/components/route-guard";
-
-type FormState = {
-  name: string;
-  phone: string;
-};
 
 function UserAvatar({ name }: { name: string }) {
   return (
@@ -43,6 +38,8 @@ function UserListItem({
   disabled: boolean;
   onClick: () => void;
 }) {
+  const isAdmin = user.role === UserRole.ADMIN;
+
   return (
     <button
       className="sample-button"
@@ -53,9 +50,22 @@ function UserListItem({
     >
       <span style={{ display: "flex", alignItems: "center", gap: "0.75rem" }}>
         <UserAvatar name={user.name} />
-        <span>
+        <span style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
           <span className="sample-label">{user.name}</span>
-          <span className="sample-value">{user.phone}</span>
+          {isAdmin && (
+            <span
+              style={{
+                fontSize: "0.72rem",
+                fontWeight: 700,
+                color: "var(--accent-strong)",
+                background: "var(--accent-soft)",
+                padding: "0.15rem 0.45rem",
+                borderRadius: "var(--radius-pill)",
+              }}
+            >
+              관리자
+            </span>
+          )}
         </span>
       </span>
       <span className="sample-value" style={{ fontSize: "1.2rem" }}>›</span>
@@ -69,17 +79,17 @@ export function AuthScreen() {
   const simpleLoginMutation = useSimpleLoginMutation();
   const simpleRegisterMutation = useSimpleRegisterMutation();
   const [showRegister, setShowRegister] = useState(false);
-  const [formState, setFormState] = useState<FormState>({ name: "", phone: "" });
+  const [formState, setFormState] = useState({ name: "" });
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const users = usersQuery.data ?? [];
   const isBusy = simpleLoginMutation.isPending || simpleRegisterMutation.isPending;
 
-  const handleUserClick = (userId: number) => {
+  const handleUserClick = (user: UserListItemDto) => {
     setErrorMessage(null);
-    simpleLoginMutation.mutate(userId, {
+    simpleLoginMutation.mutate(user.id, {
       onSuccess: () => {
-        router.replace("/meetings");
+        router.replace(user.role === UserRole.ADMIN ? "/admin/meetings" : "/meetings");
       },
       onError: (error) => {
         setErrorMessage(extractApiErrorMessage(error, "로그인에 실패했습니다"));
@@ -92,7 +102,7 @@ export function AuthScreen() {
     setErrorMessage(null);
 
     simpleRegisterMutation.mutate(
-      { name: formState.name.trim(), phone: formState.phone.trim() },
+      { name: formState.name.trim() },
       {
         onSuccess: () => {
           router.replace("/meetings");
@@ -102,22 +112,6 @@ export function AuthScreen() {
         },
       }
     );
-  };
-
-  const handleAdminLogin = () => {
-    // Find admin - it won't be in the user list (filtered to USER role)
-    // Use simple-login with userId 1 (admin is always first seeded user)
-    // Actually we need a different approach - let's login via the users list endpoint
-    // The admin is not shown. We'll use a direct API call.
-    setErrorMessage(null);
-    simpleLoginMutation.mutate(1, {
-      onSuccess: () => {
-        router.replace("/admin/meetings");
-      },
-      onError: (error) => {
-        setErrorMessage(extractApiErrorMessage(error, "관리자 로그인에 실패했습니다"));
-      },
-    });
   };
 
   return (
@@ -168,7 +162,6 @@ export function AuthScreen() {
           {!showRegister ? (
             <>
               <div style={{ display: "flex", alignItems: "center", gap: "0.5rem" }}>
-                <span style={{ fontSize: "0.85rem", color: "var(--ink-subtle)" }}>👤</span>
                 <span style={{ fontSize: "0.95rem", fontWeight: 600 }}>사용자 선택</span>
               </div>
 
@@ -185,7 +178,7 @@ export function AuthScreen() {
                       key={user.id}
                       user={user}
                       disabled={isBusy}
-                      onClick={() => handleUserClick(user.id)}
+                      onClick={() => handleUserClick(user)}
                     />
                   ))}
                 </div>
@@ -212,24 +205,11 @@ export function AuthScreen() {
                   <input
                     autoComplete="name"
                     className="auth-input"
-                    onChange={(e) => setFormState((s) => ({ ...s, name: e.target.value }))}
+                    onChange={(e) => setFormState({ name: e.target.value })}
                     placeholder="이름을 입력하세요"
                     required
                     type="text"
                     value={formState.name}
-                  />
-                </label>
-
-                <label className="auth-field">
-                  <span className="auth-label">전화번호</span>
-                  <input
-                    autoComplete="tel"
-                    className="auth-input"
-                    onChange={(e) => setFormState((s) => ({ ...s, phone: e.target.value }))}
-                    placeholder="010-0000-0000"
-                    required
-                    type="tel"
-                    value={formState.phone}
                   />
                 </label>
 
@@ -255,25 +235,6 @@ export function AuthScreen() {
             </>
           )}
         </section>
-
-        <button
-          onClick={handleAdminLogin}
-          disabled={isBusy}
-          type="button"
-          style={{
-            marginTop: "1.5rem",
-            background: "none",
-            border: "none",
-            cursor: "pointer",
-            color: "var(--ink-subtle)",
-            fontSize: "0.88rem",
-            display: "flex",
-            alignItems: "center",
-            gap: "0.4rem",
-          }}
-        >
-          ⚙ 관리자 페이지로 이동
-        </button>
       </main>
     </GuestOnly>
   );

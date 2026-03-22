@@ -49,7 +49,7 @@ function ApplicationCard({ application }: { application: MyApplicationItemDto })
         </h2>
 
         <div style={{ display: "flex", flexWrap: "wrap", gap: "0.75rem", fontSize: "0.85rem", color: "var(--ink-subtle)" }}>
-          <span>신청일: {application.createdAt.slice(0, 10)}</span>
+          <span>신청일: {application.createdAt.slice(0, 19).replace("T", " ")}</span>
           <span>
             · 🕐 발표 <strong>{application.announcementDate}</strong>{" "}
             <span style={{ background: "var(--neutral-soft)", padding: "0.1rem 0.4rem", borderRadius: "var(--radius-pill)", fontSize: "0.8rem" }}>
@@ -88,8 +88,11 @@ export function MyApplicationsScreen() {
           <div className="stack-md">
             {Array.from({ length: 3 }).map((_, i) => (
               <div className="meeting-card stack-md" key={i}>
-                <div className="loading-block loading-pill" />
-                <div className="loading-block loading-title" />
+                <div style={{ display: "flex", gap: "0.5rem" }}>
+                  <div className="loading-block" style={{ height: "2.2rem", width: "5rem", borderRadius: "var(--radius-pill)" }} />
+                  <div className="loading-block" style={{ height: "2.2rem", width: "5.5rem", borderRadius: "var(--radius-pill)" }} />
+                </div>
+                <div className="loading-block" style={{ height: "1.4rem", width: "60%", borderRadius: "0.7rem" }} />
                 <div className="loading-block loading-copy short" />
               </div>
             ))}

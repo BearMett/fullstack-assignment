@@ -44,7 +44,6 @@ export class AuthService {
 
   async listUsers(): Promise<UserListItemDto[]> {
     const users = await this.userRepository.find({
-      where: { role: UserRole.USER },
       order: { id: "ASC" },
     });
 
@@ -66,7 +65,7 @@ export class AuthService {
     return this.toAuthResponse(user);
   }
 
-  async simpleRegister(name: string, phone: string): Promise<AuthTokenDto> {
+  async simpleRegister(name: string, phone?: string): Promise<AuthTokenDto> {
     const user = this.userRepository.create({
       name,
       phone,

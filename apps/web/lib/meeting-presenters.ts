@@ -117,10 +117,6 @@ export function getMeetingStatusBadges(meeting: {
     tone: "category",
   });
 
-  if (meeting.isRecruiting) {
-    badges.push({ label: "신청 가능", tone: "is-open" });
-  }
-
   const today = new Date().toISOString().slice(0, 10);
   const isAnnouncementPast = meeting.announcementDate <= today;
 

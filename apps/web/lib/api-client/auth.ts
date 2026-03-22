@@ -22,7 +22,7 @@ class AuthApiClient extends BaseApiClient {
     return response.data;
   }
 
-  async simpleRegister(name: string, phone: string): Promise<AuthTokenDto> {
+  async simpleRegister(name: string, phone?: string): Promise<AuthTokenDto> {
     const response = await this.api.post<AuthTokenDto>("/auth/simple-register", { name, phone });
     return response.data;
   }

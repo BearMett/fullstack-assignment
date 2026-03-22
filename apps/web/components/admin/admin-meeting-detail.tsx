@@ -28,6 +28,9 @@ const EMPTY_APPLICANTS: ApplicationItemDto[] = [];
 const applicantDateFormatter = new Intl.DateTimeFormat("ko-KR", {
   month: "2-digit",
   day: "2-digit",
+  hour: "2-digit",
+  minute: "2-digit",
+  hour12: false,
 });
 
 function formatShortDate(value: string): string {
@@ -76,7 +79,7 @@ export function AdminMeetingDetail({ meetingId }: { meetingId: number }) {
       { applicationId, status },
       {
         onSuccess: () => {
-          setNotice({ tone: "success", message: status === ApplicationStatus.SELECTED ? "선정 처리했습니다." : "선정을 취소했습니다." });
+          setNotice({ tone: "success", message: status === ApplicationStatus.SELECTED ? "선정 처리했습니다." : "미선정 처리했습니다." });
         },
         onError: (error) => {
           setNotice({ tone: "error", message: extractApiErrorMessage(error, "상태를 변경하지 못했습니다") });
@@ -194,7 +197,7 @@ export function AdminMeetingDetail({ meetingId }: { meetingId: number }) {
 
           {isAnnouncementPast && (
             <div style={{ background: "var(--accent-soft)", borderRadius: "1rem", padding: "0.75rem 1rem", fontSize: "0.88rem", color: "var(--accent-strong)" }}>
-              ⓘ 발표일이 지났습니다. 사용자에게 선정/탈락 결과가 공개됩니다.
+              ⓘ 발표일이 지났습니다. 사용자에게 선정/미선정 결과가 공개됩니다.
             </div>
           )}
         </section>
@@ -227,22 +230,29 @@ export function AdminMeetingDetail({ meetingId }: { meetingId: number }) {
                     cursor: "pointer",
                   }}
                 >
-                  {f === "ALL" ? "전체" : f === "PENDING" ? "대기" : f === "SELECTED" ? "선정" : "탈락"}
+                  {f === "ALL" ? "전체" : f === "PENDING" ? "대기" : f === "SELECTED" ? "선정" : "미선정"}
                 </button>
               ))}
             </div>
           </div>
 
-          {selectedIds.length > 0 && (
-            <div style={{ display: "flex", gap: "0.5rem", marginBottom: "0.75rem" }}>
-              <button className="primary-button" disabled={isBusy} onClick={() => handleBatchAction(ApplicationStatus.SELECTED)} type="button" style={{ fontSize: "0.85rem", minHeight: "2.2rem", padding: "0 0.75rem" }}>
+          <div
+            style={{
+              display: "grid",
+              gridTemplateRows: selectedIds.length > 0 ? "1fr" : "0fr",
+              transition: "grid-template-rows 200ms ease",
+              overflow: "hidden",
+            }}
+          >
+            <div style={{ minHeight: 0, display: "flex", gap: "0.5rem", paddingBottom: selectedIds.length > 0 ? "0.75rem" : 0, transition: "padding 200ms ease" }}>
+              <button className="primary-button" disabled={isBusy || selectedIds.length === 0} onClick={() => handleBatchAction(ApplicationStatus.SELECTED)} type="button" style={{ fontSize: "0.85rem", minHeight: "2.2rem", padding: "0 0.75rem" }}>
                 선택 항목 선정
               </button>
-              <button className="ghost-button" disabled={isBusy} onClick={() => handleBatchAction(ApplicationStatus.REJECTED)} type="button" style={{ fontSize: "0.85rem", minHeight: "2.2rem", padding: "0 0.75rem" }}>
-                선택 항목 탈락
+              <button className="ghost-button" disabled={isBusy || selectedIds.length === 0} onClick={() => handleBatchAction(ApplicationStatus.REJECTED)} type="button" style={{ fontSize: "0.85rem", minHeight: "2.2rem", padding: "0 0.75rem" }}>
+                선택 항목 미선정
               </button>
             </div>
-          )}
+          </div>
 
           {applicantsQuery.isLoading ? (
             <div className="stack-md">
@@ -269,10 +279,7 @@ export function AdminMeetingDetail({ meetingId }: { meetingId: number }) {
               </div>
               {filteredApplicants.map((applicant) => {
                 const statusCopy = getApplicationStatusCopy(applicant.status);
-                const isSelected = applicant.status === ApplicationStatus.SELECTED;
-                const nextStatus = isSelected ? ApplicationStatus.REJECTED : ApplicationStatus.SELECTED;
-                const actionLabel = isSelected ? "선정 취소" : "선정";
-                const isConfirming = confirmingAction?.id === applicant.id && confirmingAction?.status === nextStatus;
+                const isConfirming = confirmingAction?.id === applicant.id;
 
                 return (
                   <div
@@ -315,7 +322,7 @@ export function AdminMeetingDetail({ meetingId }: { meetingId: number }) {
                       {isConfirming ? (
                         <>
                           <button
-                            onClick={() => handleSingleAction(applicant.id, nextStatus)}
+                            onClick={() => handleSingleAction(applicant.id, confirmingAction!.status)}
                             disabled={isBusy}
                             type="button"
                             style={{
@@ -350,24 +357,48 @@ export function AdminMeetingDetail({ meetingId }: { meetingId: number }) {
                           </button>
                         </>
                       ) : (
-                        <button
-                          onClick={() => setConfirmingAction({ id: applicant.id, status: nextStatus })}
-                          disabled={isBusy}
-                          type="button"
-                          style={{
-                            padding: "0.25rem 0.55rem",
-                            borderRadius: "var(--radius-pill)",
-                            border: `1px solid ${isSelected ? "var(--line-soft)" : "rgba(58,116,82,0.3)"}`,
-                            background: isSelected ? "rgba(255,255,255,0.6)" : "var(--success-soft)",
-                            color: isSelected ? "var(--foreground)" : "var(--success-ink)",
-                            fontSize: "0.75rem",
-                            fontWeight: 700,
-                            cursor: "pointer",
-                            whiteSpace: "nowrap",
-                          }}
-                        >
-                          {actionLabel}
-                        </button>
+                        <>
+                          {applicant.status !== ApplicationStatus.SELECTED && (
+                            <button
+                              onClick={() => setConfirmingAction({ id: applicant.id, status: ApplicationStatus.SELECTED })}
+                              disabled={isBusy}
+                              type="button"
+                              style={{
+                                padding: "0.25rem 0.55rem",
+                                borderRadius: "var(--radius-pill)",
+                                border: "1px solid rgba(58,116,82,0.3)",
+                                background: "var(--success-soft)",
+                                color: "var(--success-ink)",
+                                fontSize: "0.75rem",
+                                fontWeight: 700,
+                                cursor: "pointer",
+                                whiteSpace: "nowrap",
+                              }}
+                            >
+                              선정
+                            </button>
+                          )}
+                          {applicant.status !== ApplicationStatus.REJECTED && (
+                            <button
+                              onClick={() => setConfirmingAction({ id: applicant.id, status: ApplicationStatus.REJECTED })}
+                              disabled={isBusy}
+                              type="button"
+                              style={{
+                                padding: "0.25rem 0.55rem",
+                                borderRadius: "var(--radius-pill)",
+                                border: "1px solid var(--line-soft)",
+                                background: "rgba(255,255,255,0.6)",
+                                color: "var(--foreground)",
+                                fontSize: "0.75rem",
+                                fontWeight: 700,
+                                cursor: "pointer",
+                                whiteSpace: "nowrap",
+                              }}
+                            >
+                              미선정
+                            </button>
+                          )}
+                        </>
                       )}
                     </span>
                   </div>

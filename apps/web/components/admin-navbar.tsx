@@ -60,7 +60,7 @@ export function AdminNavbar() {
             type="button"
             style={{ minHeight: "2.5rem", padding: "0 0.75rem", gap: "0.35rem" }}
           >
-            ⏎ 나가기
+            사용자 전환
           </button>
         </div>
       </div>

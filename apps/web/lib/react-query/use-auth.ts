@@ -45,7 +45,7 @@ export function useSimpleLoginMutation(): UseMutationResult<AuthTokenDto, unknow
   });
 }
 
-export function useSimpleRegisterMutation(): UseMutationResult<AuthTokenDto, unknown, { name: string; phone: string }> {
+export function useSimpleRegisterMutation(): UseMutationResult<AuthTokenDto, unknown, { name: string; phone?: string }> {
   const setSession = useAuthStore((state) => state.setSession);
 
   return useMutation({
