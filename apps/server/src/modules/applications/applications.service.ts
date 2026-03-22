@@ -133,6 +133,7 @@ export class ApplicationsService {
       const targetIds = updates.map((update) => update.applicationId);
       const applications = await manager.getRepository(Application).find({
         where: { id: In(targetIds), meetingId },
+        relations: { user: true },
       });
 
       if (applications.length !== targetIds.length) {
@@ -265,7 +266,10 @@ export class ApplicationsService {
     meetingId: number,
     applicationId: number
   ): Promise<Application> {
-    const application = await manager.getRepository(Application).findOne({ where: { id: applicationId, meetingId } });
+    const application = await manager.getRepository(Application).findOne({
+      where: { id: applicationId, meetingId },
+      relations: { user: true },
+    });
 
     if (!application) {
       throw new NotFoundException(APPLICATION_NOT_FOUND_MESSAGE);

@@ -208,6 +208,7 @@ describe("ApplicationsController", () => {
 
     expect(selectedResponse.status).toBe(200);
     expect(selectedResponse.body.status).toBe(ApplicationStatus.SELECTED);
+    expect(selectedResponse.body.userName).toBe("선정대상");
 
     const rejectedResponse = await request(app.getHttpServer())
       .patch(`/api/admin/meetings/${meeting.id}/applications/${rejectedCandidate.body.id}/status`)
@@ -216,6 +217,7 @@ describe("ApplicationsController", () => {
 
     expect(rejectedResponse.status).toBe(200);
     expect(rejectedResponse.body.status).toBe(ApplicationStatus.REJECTED);
+    expect(rejectedResponse.body.userName).toBe("탈락대상");
   });
 
   it("PATCH /api/admin/meetings/:meetingId/applications/status rejects overflow with rollback", async () => {
