@@ -77,7 +77,7 @@ const meetingSeeds: MeetingSeed[] = [
     category: MeetingCategory.EXERCISE,
     description:
       "주 2회 저녁, 간단한 요가와 명상으로 하루를 마무리하는 소모임입니다. 매번 잊으면 OK!",
-    maxParticipants: 12,
+    maxParticipants: 2,
     deadlineDate: "2026-03-28",
     announcementDate: "2026-03-31",
     allowReapply: true,
@@ -115,8 +115,10 @@ const applicationSeeds: ApplicationSeed[] = [
   { userName: "김지수", meetingTitle: "주말 러닝 크루 4기", motivation: "건강한 습관을 만들고 싶어서 신청합니다!" },
   { userName: "최준혁", meetingTitle: "주말 러닝 크루 4기", motivation: "아침 러닝으로 하루를 시작하고 싶어요." },
   { userName: "이민호", meetingTitle: "주말 러닝 크루 4기", motivation: "운동 동기부여가 필요해요!" },
-  // 요가 & 명상 소모임 (모집 중)
+  // 요가 & 명상 소모임 (모집 중, 정원 2명 — 신청자 3명으로 선정 초과 테스트)
   { userName: "박서연", meetingTitle: "요가 & 명상 소모임", motivation: "명상에 관심이 생겨서 참여하고 싶어요." },
+  { userName: "최준혁", meetingTitle: "요가 & 명상 소모임", motivation: "요가로 유연성을 기르고 싶어요." },
+  { userName: "이민호", meetingTitle: "요가 & 명상 소모임", motivation: "운동 부족을 해소하고 싶어요." },
   // 4월 독서 모임: 달러구트 꿈 백화점 (모집 중)
   { userName: "김지수", meetingTitle: "4월 독서 모임: 달러구트 꿈 백화점", motivation: "이 책 정말 읽고 싶었어요! 함께 이야기 나누고 싶습니다." },
   { userName: "정하나", meetingTitle: "4월 독서 모임: 달러구트 꿈 백화점", motivation: "환상문학을 좋아해서 꼭 참여하고 싶습니다." },
