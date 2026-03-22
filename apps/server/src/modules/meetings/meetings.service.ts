@@ -55,24 +55,35 @@ export class MeetingsService {
     }
 
     const recruiting = isRecruiting(meeting.deadline);
-    const applicantCount = await this.applicationRepository.count({ where: { meetingId: meeting.id } });
 
     if (role === UserRole.ADMIN) {
-      const [selectedCount, rejectedCount, pendingCount] = await Promise.all([
-        this.applicationRepository.count({ where: { meetingId: meeting.id, status: ApplicationStatus.SELECTED } }),
-        this.applicationRepository.count({ where: { meetingId: meeting.id, status: ApplicationStatus.REJECTED } }),
-        this.applicationRepository.count({ where: { meetingId: meeting.id, status: ApplicationStatus.PENDING } }),
-      ]);
+      const statusCounts = await this.applicationRepository
+        .createQueryBuilder("application")
+        .select("application.status", "status")
+        .addSelect("COUNT(*)", "count")
+        .where("application.meetingId = :meetingId", { meetingId: meeting.id })
+        .groupBy("application.status")
+        .getRawMany<{ status: string; count: string }>();
+
+      const countByStatus: Record<string, number> = {};
+      let applicantCount = 0;
+      for (const row of statusCounts) {
+        const c = parseInt(row.count, 10);
+        countByStatus[row.status] = c;
+        applicantCount += c;
+      }
 
       return {
         ...this.toMeetingType(meeting),
         isRecruiting: recruiting,
         applicantCount,
-        selectedCount,
-        rejectedCount,
-        pendingCount,
+        selectedCount: countByStatus[ApplicationStatus.SELECTED] ?? 0,
+        rejectedCount: countByStatus[ApplicationStatus.REJECTED] ?? 0,
+        pendingCount: countByStatus[ApplicationStatus.PENDING] ?? 0,
       };
     }
+
+    const applicantCount = await this.applicationRepository.count({ where: { meetingId: meeting.id } });
 
     const myApplication = await this.applicationRepository.findOne({ where: { meetingId: meeting.id, userId } });
 

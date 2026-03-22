@@ -169,16 +169,22 @@ export class ApplicationsService {
         throw new BadRequestException(CAPACITY_EXCEEDED_MESSAGE);
       }
 
+      const changed: Application[] = [];
       for (const update of updates) {
-        const application = applicationById.get(update.applicationId);
-        if (!application) {
-          throw new NotFoundException(APPLICATION_NOT_FOUND_MESSAGE);
+        const application = applicationById.get(update.applicationId)!;
+        if (application.status !== update.status) {
+          application.status = update.status;
+          changed.push(application);
         }
-        application.status = update.status;
       }
 
-      const saved = await manager.getRepository(Application).save(Array.from(applicationById.values()));
-      const sorted = saved.sort((a, b) => a.id - b.id);
+      if (changed.length > 0) {
+        await manager.getRepository(Application).save(changed);
+      }
+
+      const sorted = Array.from(applicationById.values()).sort(
+        (a, b) => a.createdAt.getTime() - b.createdAt.getTime() || a.id - b.id
+      );
 
       return sorted.map((application) => this.toApplicationItem(application));
     });
