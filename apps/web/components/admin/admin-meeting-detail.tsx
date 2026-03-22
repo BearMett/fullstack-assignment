@@ -91,13 +91,14 @@ export function AdminMeetingDetail({ meetingId }: { meetingId: number }) {
 
   const handleBatchAction = (status: ApplicationStatus) => {
     if (selectedIds.length === 0) return;
+    const count = selectedIds.length;
     setNotice(null);
     batchUpdateMutation.mutate(
       { updates: selectedIds.map((id) => ({ applicationId: id, status })) },
       {
         onSuccess: () => {
           setSelectedIds([]);
-          setNotice({ tone: "success", message: `${selectedIds.length}건을 일괄 처리했습니다.` });
+          setNotice({ tone: "success", message: `${count}건을 일괄 처리했습니다.` });
         },
         onError: (error) => {
           setNotice({ tone: "error", message: extractApiErrorMessage(error, "일괄 처리에 실패했습니다") });

@@ -256,6 +256,41 @@ describe("ApplicationsController", () => {
     expect(afterB?.status).toBe(ApplicationStatus.PENDING);
   });
 
+  it("PATCH /api/admin/meetings/:meetingId/applications/status allows swap regardless of order", async () => {
+    const adminToken = await registerAndLogin("admin-swap@example.com", "관리자", UserRole.ADMIN);
+    const userTokenA = await registerAndLogin("swap-a@example.com", "스왑A");
+    const userTokenB = await registerAndLogin("swap-b@example.com", "스왑B");
+    const meeting = await createMeeting(1, 24);
+
+    const candidateA = await request(app.getHttpServer())
+      .post(`/api/meetings/${meeting.id}/applications`)
+      .set("Authorization", `Bearer ${userTokenA}`)
+      .send();
+    const candidateB = await request(app.getHttpServer())
+      .post(`/api/meetings/${meeting.id}/applications`)
+      .set("Authorization", `Bearer ${userTokenB}`)
+      .send();
+
+    // A를 먼저 선정
+    await request(app.getHttpServer())
+      .patch(`/api/admin/meetings/${meeting.id}/applications/${candidateA.body.id}/status`)
+      .set("Authorization", `Bearer ${adminToken}`)
+      .send({ status: ApplicationStatus.SELECTED });
+
+    // B를 선정하고 A를 해제하는 배치 — 순서가 [선정, 해제]여도 최종 선정 수는 1이므로 통과해야 함
+    const swapResponse = await request(app.getHttpServer())
+      .patch(`/api/admin/meetings/${meeting.id}/applications/status`)
+      .set("Authorization", `Bearer ${adminToken}`)
+      .send({
+        updates: [
+          { applicationId: candidateB.body.id, status: ApplicationStatus.SELECTED },
+          { applicationId: candidateA.body.id, status: ApplicationStatus.REJECTED },
+        ],
+      });
+
+    expect(swapResponse.status).toBe(200);
+  });
+
   async function registerAndLogin(email: string, name: string, role?: UserRole): Promise<string> {
     const registerResponse = await request(app.getHttpServer()).post("/api/auth/register").send({
       email,

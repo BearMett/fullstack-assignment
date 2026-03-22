@@ -145,44 +145,35 @@ export class ApplicationsService {
         applicationById.set(application.id, application);
       }
 
-      let selectedCount = await manager
+      const currentSelectedCount = await manager
         .getRepository(Application)
         .count({ where: { meetingId, status: ApplicationStatus.SELECTED } });
 
-      const nextStatusById = new Map<number, ApplicationStatus>();
-      for (const application of applications) {
-        nextStatusById.set(application.id, application.status);
-      }
-
-      for (const update of updates) {
-        const currentStatus = nextStatusById.get(update.applicationId);
-
-        if (!currentStatus) {
-          throw new NotFoundException(APPLICATION_NOT_FOUND_MESSAGE);
-        }
-
-        if (currentStatus !== ApplicationStatus.SELECTED && update.status === ApplicationStatus.SELECTED) {
-          selectedCount += 1;
-        }
-
-        if (currentStatus === ApplicationStatus.SELECTED && update.status !== ApplicationStatus.SELECTED) {
-          selectedCount -= 1;
-        }
-
-        if (selectedCount > meeting.maxParticipants) {
-          throw new BadRequestException(CAPACITY_EXCEEDED_MESSAGE);
-        }
-
-        nextStatusById.set(update.applicationId, update.status);
-      }
-
+      // 최종 상태 기준으로 선정 수 변동 계산
+      let selectedDelta = 0;
       for (const update of updates) {
         const application = applicationById.get(update.applicationId);
-
         if (!application) {
           throw new NotFoundException(APPLICATION_NOT_FOUND_MESSAGE);
         }
 
+        if (application.status !== ApplicationStatus.SELECTED && update.status === ApplicationStatus.SELECTED) {
+          selectedDelta += 1;
+        }
+        if (application.status === ApplicationStatus.SELECTED && update.status !== ApplicationStatus.SELECTED) {
+          selectedDelta -= 1;
+        }
+      }
+
+      if (currentSelectedCount + selectedDelta > meeting.maxParticipants) {
+        throw new BadRequestException(CAPACITY_EXCEEDED_MESSAGE);
+      }
+
+      for (const update of updates) {
+        const application = applicationById.get(update.applicationId);
+        if (!application) {
+          throw new NotFoundException(APPLICATION_NOT_FOUND_MESSAGE);
+        }
         application.status = update.status;
       }
 

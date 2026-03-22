@@ -178,6 +178,20 @@ describe("MeetingsController (core)", () => {
         });
 
     expect(invalidMaxParticipantsResponse.status).toBe(400);
+
+    const invalidOrderResponse = await request(app.getHttpServer())
+      .post("/api/meetings")
+      .set("Authorization", `Bearer ${adminToken}`)
+      .send({
+        title: "순서 오류",
+        category: MeetingCategory.READING,
+        description: "검증 실패",
+        maxParticipants: 5,
+        deadline: datetimeOffset(72),
+        announcement: datetimeOffset(48),
+      });
+
+    expect(invalidOrderResponse.status).toBe(400);
   });
 
   it("returns recruiting-only meetings to users and all meetings to admins", async () => {
